@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Importar — Finanzas PR</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:wght@900&display=swap" rel="stylesheet">
+<style>
+:root { --bg:#0e0f0e; --surface:#161816; --surface2:#1e211e; --border:#2a2e2a; --income:#4ade80; --expense:#f87171; --accent:#b5e853; --text:#e8ede8; --dim:#6b7a6b; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text); font-family:'DM Mono',monospace; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1.5rem; }
+.box { background:var(--surface); border:1px solid var(--border); border-top:2px solid var(--accent); padding:2rem; max-width:520px; width:100%; }
+h1 { font-family:'Fraunces',serif; font-size:1.3rem; color:var(--accent); margin-bottom:0.3rem; }
+.sub { font-size:0.65rem; color:var(--dim); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:1.5rem; }
+.stats { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); margin-bottom:1.5rem; }
+.stat { background:var(--surface2); padding:0.9rem; text-align:center; }
+.stat-val { font-family:'Fraunces',serif; font-size:1.1rem; margin-bottom:0.2rem; }
+.stat-val.g { color:var(--income); }
+.stat-val.r { color:var(--expense); }
+.stat-val.a { color:var(--accent); }
+.stat-lbl { font-size:0.58rem; color:var(--dim); text-transform:uppercase; letter-spacing:0.08em; }
+.progress-wrap { margin-bottom:1rem; }
+.progress-bar-bg { height:4px; background:var(--surface2); border-radius:2px; overflow:hidden; margin-bottom:0.5rem; }
+.progress-bar { height:4px; background:var(--accent); border-radius:2px; width:0%; transition:width 0.3s; }
+.progress-txt { font-size:0.68rem; color:var(--dim); min-height:1.2rem; }
+.log { background:var(--surface2); border:1px solid var(--border); padding:0.8rem; height:140px; overflow-y:auto; font-size:0.65rem; color:var(--dim); line-height:1.8; margin-bottom:1rem; }
+.log .ok  { color:var(--income); }
+.log .err { color:var(--expense); }
+.btn { width:100%; padding:0.85rem; background:var(--accent); color:var(--bg); border:none; font-family:'DM Mono',monospace; font-size:0.8rem; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; border-radius:2px; transition:opacity 0.2s; }
+.btn:hover { opacity:0.85; }
+.btn:disabled { opacity:0.4; cursor:not-allowed; }
+.btn-back { width:100%; padding:0.6rem; background:transparent; color:var(--dim); border:1px solid var(--border); font-family:'DM Mono',monospace; font-size:0.7rem; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; border-radius:2px; margin-top:0.6rem; }
+.btn-back:hover { border-color:var(--accent); color:var(--accent); }
+.warning { font-size:0.65rem; color:var(--dim); text-align:center; margin-top:0.8rem; line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>Finanzas PR</h1>
+  <div class="sub">Importar historial del Excel de Alejandra</div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-val g">105</div>
+      <div class="stat-lbl">Egresos</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val r">10</div>
+      <div class="stat-lbl">Ingresos</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val a">115</div>
+      <div class="stat-lbl">Total</div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar-bg"><div class="progress-bar" id="bar"></div></div>
+    <div class="progress-txt" id="progressTxt">Listo para importar</div>
+  </div>
+
+  <div class="log" id="log"><span style="color:var(--dim)">El log aparecerá aquí...</span></div>
+
+  <button class="btn" id="btnImport" onclick="importar()">▲ Importar 115 registros a Firebase</button>
+  <button class="btn-back" onclick="location.href='index.html'">← Volver a la app</button>
+  <p class="warning">⚠ Úsalo solo una vez. Si lo corres dos veces se duplican los datos.</p>
+</div>
+
+<script type="module">
+import { initializeApp }                from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection,
+         addDoc, serverTimestamp }      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const DATA = [{"id":1,"tipo":"egreso","fecha":"2026-04-17","desc":"Barra energética","cat":"Alimentación / mercado","monto":6.0,"notas":""},{"id":2,"tipo":"ingreso","fecha":"2026-04-17","desc":"Sueldo","cat":"Sueldo / salario","monto":500.0,"notas":""},{"id":3,"tipo":"egreso","fecha":"2026-04-17","desc":"Helados","cat":"Alimentación / mercado","monto":10.0,"notas":""},{"id":4,"tipo":"ingreso","fecha":"2026-04-17","desc":"Sueldo","cat":"Sueldo / salario","monto":1000.0,"notas":""},{"id":5,"tipo":"egreso","fecha":"2026-04-17","desc":"Cuota paseo Dom","cat":"Colegio / educación","monto":16.5,"notas":""},{"id":6,"tipo":"ingreso","fecha":"2026-04-21","desc":"Sueldo","cat":"Sueldo / salario","monto":200.0,"notas":""},{"id":7,"tipo":"egreso","fecha":"2026-04-17","desc":"Jarabe Edson","cat":"Salud / farmacia","monto":17.0,"notas":""},{"id":8,"tipo":"ingreso","fecha":"2026-04-22","desc":"Sueldo","cat":"Sueldo / salario","monto":300.0,"notas":""},{"id":9,"tipo":"egreso","fecha":"2026-04-17","desc":"Papel higiénico y 3 atún","cat":"Alimentación / mercado","monto":44.4,"notas":""},{"id":10,"tipo":"ingreso","fecha":"2026-04-24","desc":"Sueldo","cat":"Sueldo / salario","monto":500.0,"notas":""},{"id":11,"tipo":"egreso","fecha":"2026-04-17","desc":"Parrilla","cat":"Alimentación / mercado","monto":80.0,"notas":""},{"id":12,"tipo":"ingreso","fecha":"2026-04-25","desc":"Sueldo","cat":"Sueldo / salario","monto":1000.0,"notas":""},{"id":13,"tipo":"egreso","fecha":"2026-04-17","desc":"Pizza x2","cat":"Alimentación / mercado","monto":119.0,"notas":""},{"id":14,"tipo":"ingreso","fecha":"2026-04-28","desc":"Devolución pizza wen y Clau","cat":"Otro ingreso","monto":60.0,"notas":""},{"id":15,"tipo":"egreso","fecha":"2026-04-17","desc":"Gasolina","cat":"Transporte / gasolina","monto":150.0,"notas":""},{"id":16,"tipo":"ingreso","fecha":"2026-04-28","desc":"Sueldo","cat":"Sueldo / salario","monto":50.0,"notas":""},{"id":17,"tipo":"egreso","fecha":"2026-04-18","desc":"Vicky","cat":"Otro egreso","monto":400.0,"notas":""},{"id":18,"tipo":"ingreso","fecha":"2026-05-01","desc":"Sueldo","cat":"Sueldo / salario","monto":3000.0,"notas":""},{"id":19,"tipo":"egreso","fecha":"2026-04-18","desc":"Cervezas x12","cat":"Alimentación / mercado","monto":49.9,"notas":""},{"id":20,"tipo":"ingreso","fecha":"2026-05-06","desc":"Sueldo","cat":"Sueldo / salario","monto":1000.0,"notas":""},{"id":21,"tipo":"egreso","fecha":"2026-04-18","desc":"Canva","cat":"Otro egreso","monto":28.0,"notas":""},{"id":22,"tipo":"egreso","fecha":"2026-04-18","desc":"Taxi mami","cat":"Transporte / gasolina","monto":14.0,"notas":""},{"id":23,"tipo":"egreso","fecha":"2026-04-19","desc":"SOAT","cat":"Transporte / gasolina","monto":73.9,"notas":""},{"id":24,"tipo":"egreso","fecha":"2026-04-19","desc":"Ceviche 3 platos","cat":"Alimentación / mercado","monto":131.0,"notas":""},{"id":25,"tipo":"egreso","fecha":"2026-04-19","desc":"Huevos, leche, plátano, manzana","cat":"Alimentación / mercado","monto":29.2,"notas":""},{"id":26,"tipo":"egreso","fecha":"2026-04-20","desc":"Pollo, 2 pechugas 39 y 2 piernas especiales 12","cat":"Alimentación / mercado","monto":51.0,"notas":""},{"id":27,"tipo":"egreso","fecha":"2026-04-20","desc":"Carne x6 porciones","cat":"Alimentación / mercado","monto":32.7,"notas":""},{"id":28,"tipo":"egreso","fecha":"2026-04-20","desc":"Medio queso","cat":"Alimentación / mercado","monto":10.0,"notas":""},{"id":29,"tipo":"egreso","fecha":"2026-04-20","desc":"Fruta","cat":"Alimentación / mercado","monto":82.6,"notas":""},{"id":30,"tipo":"egreso","fecha":"2026-04-20","desc":"Verduras","cat":"Alimentación / mercado","monto":30.9,"notas":""},{"id":31,"tipo":"egreso","fecha":"2026-04-20","desc":"Papas y camotes","cat":"Alimentación / mercado","monto":12.5,"notas":""},{"id":32,"tipo":"egreso","fecha":"2026-04-20","desc":"Metro. Leche yogurt huevos mant almendras shampo dom atunx6","cat":"Alimentación / mercado","monto":272.4,"notas":""},{"id":33,"tipo":"egreso","fecha":"2026-04-20","desc":"Discos de algodón","cat":"Salud / farmacia","monto":13.5,"notas":""},{"id":34,"tipo":"egreso","fecha":"2026-04-20","desc":"Cochera","cat":"Transporte / gasolina","monto":6.0,"notas":""},{"id":35,"tipo":"egreso","fecha":"2026-04-20","desc":"Helados tiabaya x3","cat":"Alimentación / mercado","monto":6.0,"notas":""},{"id":36,"tipo":"egreso","fecha":"2026-04-21","desc":"Uñas","cat":"Otro egreso","monto":96.0,"notas":""},{"id":37,"tipo":"egreso","fecha":"2026-04-21","desc":"Playa uñas","cat":"Transporte / gasolina","monto":10.5,"notas":""},{"id":38,"tipo":"egreso","fecha":"2026-04-21","desc":"Gasolina","cat":"Transporte / gasolina","monto":100.0,"notas":""},{"id":39,"tipo":"egreso","fecha":"2026-04-21","desc":"Helado x2","cat":"Alimentación / mercado","monto":4.0,"notas":""},{"id":40,"tipo":"egreso","fecha":"2026-04-21","desc":"Agua","cat":"Alimentación / mercado","monto":1.5,"notas":""},{"id":41,"tipo":"egreso","fecha":"2026-04-22","desc":"Agua","cat":"Alimentación / mercado","monto":2.0,"notas":""},{"id":42,"tipo":"egreso","fecha":"2026-04-22","desc":"Cine x2","cat":"Entretenimiento","monto":45.0,"notas":""},{"id":43,"tipo":"egreso","fecha":"2026-04-23","desc":"Banner karate","cat":"Colegio / educación","monto":7.8,"notas":""},{"id":44,"tipo":"egreso","fecha":"2026-04-23","desc":"Gasolina Edson","cat":"Transporte / gasolina","monto":100.0,"notas":""},{"id":45,"tipo":"egreso","fecha":"2026-04-23","desc":"Agua socosani y coca zero","cat":"Alimentación / mercado","monto":5.3,"notas":""},{"id":46,"tipo":"egreso","fecha":"2026-04-23","desc":"Popcorn","cat":"Alimentación / mercado","monto":29.0,"notas":""},{"id":47,"tipo":"egreso","fecha":"2026-04-23","desc":"Jump Spot","cat":"Entretenimiento","monto":45.0,"notas":""},{"id":48,"tipo":"egreso","fecha":"2026-04-23","desc":"Boba Tea","cat":"Alimentación / mercado","monto":12.9,"notas":""},{"id":49,"tipo":"egreso","fecha":"2026-04-23","desc":"Boba Tea","cat":"Alimentación / mercado","monto":13.9,"notas":""},{"id":50,"tipo":"egreso","fecha":"2026-04-23","desc":"Taxi","cat":"Transporte / gasolina","monto":11.0,"notas":""},{"id":51,"tipo":"egreso","fecha":"2026-04-24","desc":"Ceviche","cat":"Alimentación / mercado","monto":30.0,"notas":""},{"id":52,"tipo":"egreso","fecha":"2026-04-24","desc":"Menú Dominic","cat":"Alimentación / mercado","monto":10.5,"notas":""},{"id":53,"tipo":"egreso","fecha":"2026-04-24","desc":"Pizza X3","cat":"Alimentación / mercado","monto":170.0,"notas":""},{"id":54,"tipo":"egreso","fecha":"2026-04-25","desc":"Entradas karate X3","cat":"Colegio / educación","monto":45.0,"notas":""},{"id":55,"tipo":"egreso","fecha":"2026-04-25","desc":"Almuerzo CauCau X3","cat":"Alimentación / mercado","monto":80.0,"notas":""},{"id":56,"tipo":"egreso","fecha":"2026-04-25","desc":"Agua febrero y marzo","cat":"Agua","monto":87.0,"notas":""},{"id":57,"tipo":"egreso","fecha":"2026-04-25","desc":"Luz febrero y marzo","cat":"Luz / electricidad","monto":205.7,"notas":""},{"id":58,"tipo":"egreso","fecha":"2026-04-25","desc":"Inter febrero","cat":"Internet / telefonía","monto":73.89,"notas":""},{"id":59,"tipo":"egreso","fecha":"2026-04-25","desc":"Internet febrero marzo","cat":"Internet / telefonía","monto":184.74,"notas":""},{"id":60,"tipo":"egreso","fecha":"2026-04-25","desc":"Cel Ale","cat":"Internet / telefonía","monto":104.0,"notas":""},{"id":61,"tipo":"egreso","fecha":"2026-04-25","desc":"Cel Edson","cat":"Internet / telefonía","monto":79.47,"notas":""},{"id":62,"tipo":"egreso","fecha":"2026-04-25","desc":"Metro ToallaH pasta dental listerine","cat":"Salud / farmacia","monto":44.7,"notas":""},{"id":63,"tipo":"egreso","fecha":"2026-04-25","desc":"Pastillas dolor Edson","cat":"Salud / farmacia","monto":12.6,"notas":""},{"id":64,"tipo":"egreso","fecha":"2026-04-25","desc":"Comida y premios Lya","cat":"Otro egreso","monto":99.3,"notas":""},{"id":65,"tipo":"egreso","fecha":"2026-04-25","desc":"Karate mensualidad","cat":"Colegio / educación","monto":280.0,"notas":""},{"id":66,"tipo":"egreso","fecha":"2026-04-25","desc":"Vicky jabones y saumerio","cat":"Otro egreso","monto":23.0,"notas":""},{"id":67,"tipo":"egreso","fecha":"2026-04-25","desc":"Coca karate","cat":"Alimentación / mercado","monto":3.5,"notas":""},{"id":68,"tipo":"egreso","fecha":"2026-04-28","desc":"Aros de cebolla karate","cat":"Alimentación / mercado","monto":6.0,"notas":""},{"id":69,"tipo":"egreso","fecha":"2026-04-28","desc":"Mickes y choco pago Clau","cat":"Alimentación / mercado","monto":15.0,"notas":""},{"id":70,"tipo":"egreso","fecha":"2026-04-28","desc":"Papel toalla, detergente, Cip x2, wipes","cat":"Otro egreso","monto":32.3,"notas":""},{"id":71,"tipo":"egreso","fecha":"2026-04-30","desc":"Pan, queso y queso de chancho karate","cat":"Alimentación / mercado","monto":19.3,"notas":""},{"id":72,"tipo":"egreso","fecha":"2026-05-01","desc":"Colegio Dom Marzo","cat":"Colegio / educación","monto":1123.0,"notas":""},{"id":73,"tipo":"egreso","fecha":"2026-05-01","desc":"Mant Noguera febrero y marzo","cat":"Arriendo / hipoteca","monto":240.0,"notas":""},{"id":74,"tipo":"egreso","fecha":"2026-05-01","desc":"Mant Costa P febrero 26","cat":"Arriendo / hipoteca","monto":200.0,"notas":""},{"id":75,"tipo":"egreso","fecha":"2026-05-01","desc":"Mant cuota extraord 3 de 4","cat":"Arriendo / hipoteca","monto":100.0,"notas":""},{"id":76,"tipo":"egreso","fecha":"2026-05-01","desc":"Pago pan febrero","cat":"Alimentación / mercado","monto":4.8,"notas":""},{"id":77,"tipo":"egreso","fecha":"2026-05-01","desc":"Almuerzo cumple Sra Gladys","cat":"Alimentación / mercado","monto":200.0,"notas":""},{"id":78,"tipo":"egreso","fecha":"2026-05-02","desc":"Corte cabello Dom","cat":"Otro egreso","monto":40.0,"notas":""},{"id":79,"tipo":"egreso","fecha":"2026-05-03","desc":"Parrilla compadres","cat":"Alimentación / mercado","monto":96.5,"notas":""},{"id":80,"tipo":"egreso","fecha":"2026-05-03","desc":"Torta cumpleaños","cat":"Alimentación / mercado","monto":79.0,"notas":""},{"id":81,"tipo":"egreso","fecha":"2026-05-04","desc":"Queso","cat":"Alimentación / mercado","monto":13.5,"notas":""},{"id":82,"tipo":"egreso","fecha":"2026-05-04","desc":"Papas","cat":"Alimentación / mercado","monto":5.5,"notas":""},{"id":83,"tipo":"egreso","fecha":"2026-05-04","desc":"Pimiento de olor","cat":"Alimentación / mercado","monto":2.0,"notas":""},{"id":84,"tipo":"egreso","fecha":"2026-05-04","desc":"Vegetales","cat":"Alimentación / mercado","monto":29.1,"notas":""},{"id":85,"tipo":"egreso","fecha":"2026-05-04","desc":"Zanahoria","cat":"Alimentación / mercado","monto":1.1,"notas":""},{"id":86,"tipo":"egreso","fecha":"2026-05-04","desc":"Frutas","cat":"Alimentación / mercado","monto":46.6,"notas":""},{"id":87,"tipo":"egreso","fecha":"2026-05-04","desc":"Fruta","cat":"Alimentación / mercado","monto":25.2,"notas":""},{"id":88,"tipo":"egreso","fecha":"2026-05-04","desc":"Carne","cat":"Alimentación / mercado","monto":36.3,"notas":""},{"id":89,"tipo":"egreso","fecha":"2026-05-04","desc":"Pollo","cat":"Alimentación / mercado","monto":57.0,"notas":""},{"id":90,"tipo":"egreso","fecha":"2026-05-04","desc":"Atún x2","cat":"Alimentación / mercado","monto":13.0,"notas":""},{"id":91,"tipo":"egreso","fecha":"2026-05-04","desc":"Bolsas","cat":"Alimentación / mercado","monto":3.2,"notas":""},{"id":92,"tipo":"egreso","fecha":"2026-05-05","desc":"Almuerzo Dom x1","cat":"Colegio / educación","monto":10.5,"notas":""},{"id":93,"tipo":"egreso","fecha":"2026-05-05","desc":"Contabilidad anual dinamo","cat":"Impuestos / SUNAT","monto":100.0,"notas":""},{"id":94,"tipo":"egreso","fecha":"2026-05-05","desc":"Clases tenis","cat":"Gimnasio / deporte","monto":50.0,"notas":""},{"id":95,"tipo":"egreso","fecha":"2026-05-05","desc":"Movilidad paseo Alianza Francesa Dom","cat":"Colegio / educación","monto":9.5,"notas":""},{"id":96,"tipo":"egreso","fecha":"2026-05-05","desc":"Economax leches, yogurt, etc","cat":"Alimentación / mercado","monto":202.49,"notas":""},{"id":97,"tipo":"egreso","fecha":"2026-05-06","desc":"Almuerzo Dom x1","cat":"Colegio / educación","monto":10.5,"notas":""},{"id":98,"tipo":"egreso","fecha":"2026-05-07","desc":"Almuerzo Dom x2","cat":"Colegio / educación","monto":21.0,"notas":""},{"id":99,"tipo":"egreso","fecha":"2026-05-07","desc":"Huevos","cat":"Alimentación / mercado","monto":37.7,"notas":""},{"id":100,"tipo":"egreso","fecha":"2026-05-07","desc":"Boina y pañuelo cole Dom","cat":"Colegio / educación","monto":11.0,"notas":""},{"id":101,"tipo":"egreso","fecha":"2026-05-08","desc":"Tenis","cat":"Gimnasio / deporte","monto":50.0,"notas":""},{"id":102,"tipo":"egreso","fecha":"2026-05-08","desc":"Polo francés","cat":"Ropa / calzado","monto":43.0,"notas":""},{"id":103,"tipo":"egreso","fecha":"2026-05-08","desc":"Cuxi Tacna","cat":"Transporte / gasolina","monto":200.0,"notas":""},{"id":104,"tipo":"egreso","fecha":"2026-05-08","desc":"Helados x2","cat":"Alimentación / mercado","monto":14.0,"notas":""},{"id":105,"tipo":"egreso","fecha":"2026-05-08","desc":"Poleras karate x2","cat":"Ropa / calzado","monto":150.0,"notas":""},{"id":106,"tipo":"egreso","fecha":"2026-05-08","desc":"Cochera alianza francesa","cat":"Transporte / gasolina","monto":12.0,"notas":""},{"id":107,"tipo":"egreso","fecha":"2026-05-08","desc":"Almuerzo crepé","cat":"Alimentación / mercado","monto":30.0,"notas":""},{"id":108,"tipo":"egreso","fecha":"2026-05-09","desc":"Regalo masajes Ale","cat":"Entretenimiento","monto":75.0,"notas":""},{"id":109,"tipo":"egreso","fecha":"2026-05-10","desc":"Taxi mochila, queso, leches","cat":"Alimentación / mercado","monto":56.0,"notas":""},{"id":110,"tipo":"egreso","fecha":"2026-05-11","desc":"Almuerzo Dom x 5","cat":"Colegio / educación","monto":50.0,"notas":""},{"id":111,"tipo":"egreso","fecha":"2026-05-11","desc":"Agua con gas","cat":"Alimentación / mercado","monto":2.0,"notas":""},{"id":112,"tipo":"egreso","fecha":"2026-05-12","desc":"Tenis","cat":"Gimnasio / deporte","monto":50.0,"notas":""},{"id":113,"tipo":"egreso","fecha":"2026-05-12","desc":"Helados y agua","cat":"Alimentación / mercado","monto":10.8,"notas":""},{"id":114,"tipo":"egreso","fecha":"2026-05-12","desc":"Copias y stickers dom","cat":"Colegio / educación","monto":10.5,"notas":""},{"id":115,"tipo":"egreso","fecha":"2026-05-12","desc":"Leches yogurt","cat":"Alimentación / mercado","monto":63.1,"notas":""}];
+
+function log(msg, tipo='ok') {
+  const el = document.getElementById('log');
+  el.innerHTML += `<div class="${tipo}">${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function setProgress(n, total) {
+  document.getElementById('bar').style.width = (n/total*100) + '%';
+  document.getElementById('progressTxt').textContent = `${n} de ${total} registros`;
+}
+
+window.importar = async function() {
+  const cfg = JSON.parse(localStorage.getItem('finPR_fbConfig') || 'null');
+  if (!cfg) {
+    alert('Primero configura Firebase en la app principal (index.html).');
+    return;
+  }
+
+  const btn = document.getElementById('btnImport');
+  btn.disabled = true;
+  document.getElementById('log').innerHTML = '';
+
+  try {
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const { getFirestore, collection, addDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+
+    const app = initializeApp(cfg, 'import-instance');
+    const db  = getFirestore(app);
+    const col = collection(db, 'movimientos');
+
+    let ok = 0, errors = 0;
+    for (let i = 0; i < DATA.length; i++) {
+      const m = DATA[i];
+      try {
+        await addDoc(col, {
+          tipo: m.tipo, fecha: m.fecha, desc: m.desc,
+          cat: m.cat, monto: m.monto, notas: m.notas,
+          createdAt: serverTimestamp()
+        });
+        ok++;
+        setProgress(i+1, DATA.length);
+        if (ok % 10 === 0 || ok === DATA.length) {
+          log(`✓ ${ok} registros subidos...`);
+        }
+      } catch(e) {
+        errors++;
+        log(`✗ Error en "${m.desc}": ${e.message}`, 'err');
+      }
+    }
+
+    document.getElementById('progressTxt').textContent = `✓ Completado — ${ok} registros importados${errors ? `, ${errors} errores` : ''}`;
+    log(`\n🎉 Importación completada: ${ok} OK, ${errors} errores.`);
+    btn.textContent = '✓ Importado — no ejecutar de nuevo';
+  } catch(e) {
+    log(`✗ Error fatal: ${e.message}`, 'err');
+    btn.disabled = false;
+  }
+};
+</script>
+</body>
+</html>
