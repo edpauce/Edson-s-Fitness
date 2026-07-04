@@ -3,11 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0a">
 <title>FITMENT</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 :root {
   --bg: #0a0a0a;
@@ -29,13 +31,14 @@ html { height: 100%; background: var(--bg); }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'DM Sans', -apple-system, sans-serif;
   font-size: 14px;
   min-height: 100%;
   padding-bottom: calc(var(--nav-h) + var(--safe-b) + 8px);
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
 }
+.mono { font-family: 'JetBrains Mono', monospace; }
 
 /* ── Pages ── */
 .page { display: none; padding: 16px; max-width: 500px; margin: 0 auto; }
@@ -48,13 +51,6 @@ body {
   border-radius: 14px;
   padding: 16px;
   margin-bottom: 12px;
-}
-.card2 {
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 8px;
 }
 
 /* ── Bottom Nav ── */
@@ -102,7 +98,6 @@ body {
 .fill-lime { background: var(--lime); }
 .fill-cyan { background: var(--cyan); }
 .fill-orange { background: var(--orange); }
-.fill-red { background: var(--red); }
 
 /* ── Macro grid ── */
 .macro-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
@@ -131,9 +126,20 @@ body {
 .wday-dot.today.logged { border-color: #ffffff; }
 
 /* ── App header ── */
-.app-header { display: flex; align-items: flex-end; justify-content: space-between; padding: 18px 0 12px; }
+.app-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 18px 0 12px; }
 .app-logo { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 2px; color: var(--lime); line-height: 1; }
-.app-sub { font-size: 11px; color: var(--text2); }
+.app-sub { font-size: 11px; color: var(--text2); margin-top: 4px; }
+.gear-btn {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--text2); font-size: 17px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.phase-pill {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+  color: var(--lime); margin-top: 6px; text-align: right;
+}
 
 /* ── KPI grid ── */
 .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
@@ -148,13 +154,24 @@ body {
 /* ── Section title ── */
 .sect { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; color: var(--text2); margin-bottom: 10px; }
 
+/* ── History rows ── */
+.hist-row { display: grid; grid-template-columns: 52px 1fr 76px; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); }
+.hist-row:last-child { border-bottom: none; }
+.hist-date { font-size: 11px; color: var(--text2); }
+.hist-kcal { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; }
+.hist-stats {
+  background: rgba(200,255,0,0.04); border: 1px solid rgba(200,255,0,0.15);
+  border-radius: 10px; padding: 10px 12px; margin-bottom: 10px;
+  display: flex; justify-content: space-between; font-size: 12px;
+}
+
 /* ── Food ── */
 .food-header {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 14px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   position: sticky;
   top: 0;
   z-index: 20;
@@ -174,6 +191,16 @@ body {
 .rem-val { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600; }
 .rem-lbl { font-size: 9px; color: var(--text2); }
 
+.food-actions { display: flex; gap: 8px; margin-bottom: 12px; }
+.btn-ghost {
+  flex: 1; background: var(--card); border: 1px solid var(--border);
+  border-radius: 9px; padding: 9px; color: var(--text2);
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-ghost:active { border-color: var(--lime); color: var(--lime); }
+
 .meal-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 10px; overflow: hidden; }
 .meal-hdr {
   display: flex; align-items: center; justify-content: space-between;
@@ -188,7 +215,7 @@ body {
 
 .food-item {
   display: grid;
-  grid-template-columns: 24px 1fr 26px;
+  grid-template-columns: 24px 1fr 52px 26px;
   align-items: center;
   gap: 8px;
   padding: 9px 0;
@@ -210,6 +237,13 @@ body {
 .f-check.checked svg { display: block; }
 .f-name { font-size: 13px; font-weight: 500; }
 .f-macros { font-size: 10px; color: var(--text2); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+.g-in {
+  background: var(--card2); border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 3px; color: var(--cyan); text-align: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; width: 100%;
+}
+.g-in:focus { outline: none; border-color: var(--cyan); }
+.g-none { color: var(--muted); text-align: center; font-size: 11px; }
 .f-del {
   background: none; border: none; color: var(--muted); cursor: pointer;
   font-size: 18px; line-height: 1; padding: 2px 4px;
@@ -280,11 +314,19 @@ body {
 .ex-body { display: none; padding: 0 12px 12px; }
 .ex-body.open { display: block; }
 .ex-note {
-  font-size: 11px; color: var(--orange); margin-bottom: 10px;
+  font-size: 11px; color: var(--orange); margin-bottom: 8px;
   padding: 7px 10px;
   background: rgba(255,107,53,0.07);
   border-radius: 7px;
   border-left: 2px solid var(--orange);
+}
+.ex-prev {
+  font-size: 11px; color: var(--cyan); margin-bottom: 8px;
+  padding: 7px 10px;
+  background: rgba(0,212,255,0.06);
+  border-radius: 7px;
+  border-left: 2px solid var(--cyan);
+  font-family: 'JetBrains Mono', monospace;
 }
 .sets-header {
   display: grid; grid-template-columns: 22px 1fr 62px 62px 28px;
@@ -349,9 +391,43 @@ body {
 .d-neg { color: var(--lime); }
 .d-neu { color: var(--muted); }
 
-/* ── Chevron ── */
-.chev { width: 16px; height: 16px; flex-shrink: 0; transition: transform 0.2s; color: var(--muted); }
-.chev.open { transform: rotate(180deg); }
+#weight-chart { width: 100%; height: 200px; display: block; }
+
+/* ── Settings modal ── */
+.modal-bg {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.75);
+  display: none;
+  align-items: flex-end; justify-content: center;
+}
+.modal-bg.show { display: flex; }
+.modal-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 18px 18px 0 0;
+  width: 100%; max-width: 500px;
+  max-height: 88vh; overflow-y: auto;
+  padding: 20px 16px calc(20px + var(--safe-b));
+}
+.modal-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.modal-title .t { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1px; color: var(--lime); }
+.modal-close { background: none; border: none; color: var(--text2); font-size: 24px; cursor: pointer; padding: 4px 8px; }
+.phase-chips { display: flex; gap: 8px; margin-bottom: 14px; }
+.phase-chip {
+  flex: 1; padding: 10px 4px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--card2);
+  color: var(--text2); font-size: 12px; font-weight: 700;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.phase-chip.active { background: var(--lime); color: #0a0a0a; border-color: var(--lime); }
+.kcal-calc {
+  text-align: center; padding: 12px;
+  background: rgba(200,255,0,0.05); border: 1px solid rgba(200,255,0,0.2);
+  border-radius: 10px; margin-bottom: 14px;
+}
+.kcal-calc .v { font-family: 'Bebas Neue', sans-serif; font-size: 38px; color: var(--lime); line-height: 1; }
+.kcal-calc .l { font-size: 10px; color: var(--text2); letter-spacing: 1px; }
+.modal-sect { font-size: 10px; color: var(--text2); font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin: 16px 0 8px; }
 
 /* ── Toast ── */
 .toast {
@@ -361,10 +437,14 @@ body {
   background: var(--card); border: 1px solid var(--lime);
   border-radius: 10px; padding: 10px 20px;
   font-size: 13px; font-weight: 600; color: var(--lime);
-  z-index: 200; transition: transform 0.3s ease;
+  z-index: 400; transition: transform 0.3s ease;
   white-space: nowrap; pointer-events: none;
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── Chevron ── */
+.chev { width: 16px; height: 16px; flex-shrink: 0; transition: transform 0.2s; color: var(--muted); }
+.chev.open { transform: rotate(180deg); }
 </style>
 </head>
 <body>
@@ -376,9 +456,9 @@ body {
       <div class="app-logo">FITMENT</div>
       <div class="app-sub" id="dash-date">—</div>
     </div>
-    <div style="text-align:right">
-      <div style="font-size:10px;color:var(--text2)">SEMANA</div>
-      <div id="dash-week" style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:var(--lime)"></div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end">
+      <button class="gear-btn" onclick="openSettings()">⚙</button>
+      <div class="phase-pill" id="dash-phase"></div>
     </div>
   </div>
 
@@ -395,16 +475,16 @@ body {
 
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <span style="font-size:13px;font-weight:600">Progreso al objetivo</span>
-      <span style="font-size:11px;color:var(--text2)">Meta: 74–76 kg</span>
+      <span style="font-size:13px;font-weight:600">Progreso de la fase</span>
+      <span style="font-size:11px;color:var(--text2)" id="d-goal-lbl"></span>
     </div>
     <div class="prog-bar" style="height:10px;margin-bottom:6px">
       <div class="prog-fill fill-lime" id="d-weight-bar" style="width:0%"></div>
     </div>
     <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2)">
-      <span>Inicio: 85.95 kg</span>
+      <span id="d-start-lbl"></span>
       <span id="d-togo" style="color:var(--lime);font-weight:600"></span>
-      <span>Meta: 75 kg</span>
+      <span id="d-target-lbl"></span>
     </div>
   </div>
 
@@ -432,42 +512,48 @@ body {
     <div class="prog-wrap">
       <div class="prog-label">
         <span style="color:var(--text2)">Calorías</span>
-        <span style="font-family:'JetBrains Mono',monospace" id="d-kcal-lbl">0 / 2300</span>
+        <span class="mono" id="d-kcal-lbl"></span>
       </div>
       <div class="prog-bar"><div class="prog-fill fill-lime" id="d-bar-kcal" style="width:0%"></div></div>
     </div>
     <div class="prog-wrap">
       <div class="prog-label">
         <span style="color:var(--text2)">Proteína</span>
-        <span style="font-family:'JetBrains Mono',monospace" id="d-prot-lbl">0 / 210g</span>
+        <span class="mono" id="d-prot-lbl"></span>
       </div>
       <div class="prog-bar"><div class="prog-fill fill-cyan" id="d-bar-prot" style="width:0%"></div></div>
     </div>
     <div class="prog-wrap">
       <div class="prog-label">
         <span style="color:var(--text2)">Carbohidratos</span>
-        <span style="font-family:'JetBrains Mono',monospace" id="d-carbs-lbl">0 / 230g</span>
+        <span class="mono" id="d-carbs-lbl"></span>
       </div>
       <div class="prog-bar"><div class="prog-fill fill-lime" id="d-bar-carbs" style="width:0%"></div></div>
     </div>
     <div class="prog-wrap">
       <div class="prog-label">
         <span style="color:var(--text2)">Grasas</span>
-        <span style="font-family:'JetBrains Mono',monospace" id="d-fat-lbl">0 / 60g</span>
+        <span class="mono" id="d-fat-lbl"></span>
       </div>
       <div class="prog-bar"><div class="prog-fill fill-orange" id="d-bar-fat" style="width:0%"></div></div>
     </div>
   </div>
 
   <div class="card" style="text-align:center;padding:20px">
-    <div style="font-size:10px;color:var(--text2);letter-spacing:1px;margin-bottom:6px">BALANCE DEL DÍA</div>
-    <div class="balance-big" id="d-balance">-2300</div>
-    <div style="font-size:12px;color:var(--text2);margin-top:4px" id="d-balance-lbl">kcal de déficit</div>
+    <div style="font-size:10px;color:var(--text2);letter-spacing:1px;margin-bottom:6px">BALANCE VS OBJETIVO</div>
+    <div class="balance-big" id="d-balance">0</div>
+    <div style="font-size:12px;color:var(--text2);margin-top:4px" id="d-balance-lbl"></div>
   </div>
 
   <div class="card">
     <div style="font-size:10px;color:var(--text2);font-weight:700;letter-spacing:0.8px;margin-bottom:10px">ESTA SEMANA</div>
     <div class="week-row" id="d-week-row"></div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:10px;color:var(--text2);font-weight:700;letter-spacing:0.8px;margin-bottom:10px">ÚLTIMOS 14 DÍAS</div>
+    <div id="d-hist-stats"></div>
+    <div id="d-history"></div>
   </div>
 </div>
 
@@ -475,6 +561,7 @@ body {
 <div class="page" id="page-food">
   <div class="app-header">
     <div class="app-logo">ALIMENTACIÓN</div>
+    <button class="gear-btn" onclick="openSettings()">⚙</button>
   </div>
 
   <div class="food-header">
@@ -499,21 +586,28 @@ body {
     <div class="remaining-box">
       <div class="rem-label">POR COMER HOY</div>
       <div class="rem-grid">
-        <div><div class="rem-val" style="color:var(--lime)" id="r-kcal">2300</div><div class="rem-lbl">kcal</div></div>
-        <div><div class="rem-val" style="color:var(--cyan)" id="r-prot">210g</div><div class="rem-lbl">prot</div></div>
-        <div><div class="rem-val" id="r-carbs">230g</div><div class="rem-lbl">carb</div></div>
-        <div><div class="rem-val" style="color:var(--orange)" id="r-fat">60g</div><div class="rem-lbl">grasa</div></div>
+        <div><div class="rem-val" style="color:var(--lime)" id="r-kcal">0</div><div class="rem-lbl">kcal</div></div>
+        <div><div class="rem-val" style="color:var(--cyan)" id="r-prot">0g</div><div class="rem-lbl">prot</div></div>
+        <div><div class="rem-val" id="r-carbs">0g</div><div class="rem-lbl">carb</div></div>
+        <div><div class="rem-val" style="color:var(--orange)" id="r-fat">0g</div><div class="rem-lbl">grasa</div></div>
       </div>
     </div>
   </div>
 
+  <div class="food-actions">
+    <button class="btn-ghost" onclick="saveTemplate()">💾 Guardar como plan base</button>
+    <button class="btn-ghost" onclick="resetDay()">↺ Reiniciar día</button>
+  </div>
+
   <div id="meals-container"></div>
+  <datalist id="lib-list"></datalist>
 </div>
 
 <!-- ═══════════════ ENTRENAMIENTO ═══════════════ -->
 <div class="page" id="page-workout">
   <div class="app-header">
     <div class="app-logo">ENTRENAMIENTO</div>
+    <button class="gear-btn" onclick="openSettings()">⚙</button>
   </div>
   <div class="day-tabs" id="day-tabs"></div>
   <div id="workout-content"></div>
@@ -523,6 +617,7 @@ body {
 <div class="page" id="page-weight">
   <div class="app-header">
     <div class="app-logo">PESO</div>
+    <button class="gear-btn" onclick="openSettings()">⚙</button>
   </div>
 
   <div class="card">
@@ -534,17 +629,17 @@ body {
       </div>
       <div>
         <div class="form-lbl">Peso kg (ayunas)</div>
-        <input class="form-in" type="number" step="0.1" min="40" max="200" placeholder="85.0" id="w-kg">
+        <input class="form-in" type="number" inputmode="decimal" step="0.1" min="40" max="200" placeholder="85.0" id="w-kg">
       </div>
     </div>
     <div class="form-row3 mb10">
       <div>
         <div class="form-lbl">Cintura cm</div>
-        <input class="form-in" type="number" step="0.5" placeholder="91" id="w-waist" oninput="previewBF()">
+        <input class="form-in" type="number" inputmode="decimal" step="0.5" placeholder="91" id="w-waist" oninput="previewBF()">
       </div>
       <div>
         <div class="form-lbl">Cuello cm</div>
-        <input class="form-in" type="number" step="0.5" placeholder="41" id="w-neck" oninput="previewBF()">
+        <input class="form-in" type="number" inputmode="decimal" step="0.5" placeholder="41" id="w-neck" oninput="previewBF()">
       </div>
       <div>
         <div class="form-lbl">BF% estimado</div>
@@ -560,7 +655,7 @@ body {
 
   <div class="card">
     <div class="sect" style="font-size:16px">EVOLUCIÓN</div>
-    <canvas id="weight-chart" style="max-height:200px"></canvas>
+    <canvas id="weight-chart"></canvas>
   </div>
 
   <div class="card" style="overflow:hidden;padding:16px 0">
@@ -573,11 +668,89 @@ body {
             <th>Peso</th>
             <th>Δ</th>
             <th>BF%</th>
-            <th style="padding-right:16px">Nota</th>
+            <th>Nota</th>
+            <th></th>
           </tr>
         </thead>
         <tbody id="w-tbody"></tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SETTINGS MODAL ═══════════════ -->
+<div class="modal-bg" id="settings-modal" onclick="if(event.target===this)closeSettings()">
+  <div class="modal-card">
+    <div class="modal-title">
+      <span class="t">AJUSTES</span>
+      <button class="modal-close" onclick="closeSettings()">×</button>
+    </div>
+
+    <div class="modal-sect" style="margin-top:0">Fase actual</div>
+    <div class="phase-chips">
+      <button class="phase-chip" id="chip-cut" onclick="pickPhase('cut')">DEFINICIÓN</button>
+      <button class="phase-chip" id="chip-maint" onclick="pickPhase('maint')">MANTENIM.</button>
+      <button class="phase-chip" id="chip-bulk" onclick="pickPhase('bulk')">VOLUMEN</button>
+    </div>
+
+    <div class="kcal-calc">
+      <div class="v" id="s-kcal">0</div>
+      <div class="l">KCAL / DÍA (CALCULADO DE MACROS)</div>
+    </div>
+
+    <div class="form-row3 mb10">
+      <div>
+        <div class="form-lbl">Proteína g</div>
+        <input class="form-in" type="number" inputmode="decimal" id="s-prot" oninput="calcKcal()">
+      </div>
+      <div>
+        <div class="form-lbl">Carbos g</div>
+        <input class="form-in" type="number" inputmode="decimal" id="s-carbs" oninput="calcKcal()">
+      </div>
+      <div>
+        <div class="form-lbl">Grasas g</div>
+        <input class="form-in" type="number" inputmode="decimal" id="s-fat" oninput="calcKcal()">
+      </div>
+    </div>
+
+    <div class="form-row3 mb10">
+      <div>
+        <div class="form-lbl">Peso meta kg</div>
+        <input class="form-in" type="number" inputmode="decimal" step="0.5" id="s-goal">
+      </div>
+      <div>
+        <div class="form-lbl">TDEE kcal</div>
+        <input class="form-in" type="number" inputmode="decimal" id="s-tdee">
+      </div>
+      <div>
+        <div class="form-lbl">Altura cm</div>
+        <input class="form-in" type="number" inputmode="decimal" id="s-height">
+      </div>
+    </div>
+
+    <button class="btn-lime" onclick="saveSettings()">GUARDAR AJUSTES</button>
+
+    <div class="modal-sect">Planes del preparador (Cristian)</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-ghost" onclick="loadCoachPlan('cut')">
+        🥗 Plan CORTE<br><span class="mono" style="font-size:10px;color:var(--cyan)" id="cp-cut-kcal"></span>
+      </button>
+      <button class="btn-ghost" onclick="loadCoachPlan('bulk')">
+        🍚 Plan VOLUMEN<br><span class="mono" style="font-size:10px;color:var(--cyan)" id="cp-bulk-kcal"></span>
+      </button>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5">
+      Carga las comidas del plan como plan base diario y ajusta tus macros objetivo a los totales del plan. Corte: cardio 45′ post-entreno. Volumen: cardio 1h diario.
+    </div>
+
+    <div class="modal-sect">Respaldo de datos</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-ghost" onclick="exportData()">⬇ Exportar backup</button>
+      <button class="btn-ghost" onclick="document.getElementById('import-file').click()">⬆ Importar backup</button>
+    </div>
+    <input type="file" id="import-file" accept=".json,application/json" style="display:none" onchange="importData(event)">
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.5">
+      Exporta un backup cada semana. iOS puede borrar los datos locales de Safari si no abres la app por varios días. Tip: añade la app a tu pantalla de inicio (Compartir → Añadir a pantalla de inicio).
     </div>
   </div>
 </div>
@@ -624,58 +797,164 @@ body {
 
 <script>
 // ═══════════════════════════════════════════
-//  CONSTANTS
+//  SETTINGS / PHASES
 // ═══════════════════════════════════════════
-const HEIGHT = 178;
-const GOALS = { kcal: 2300, prot: 210, carbs: 230, fat: 60 };
-const W_START = 85.95;
-const W_TARGET = 75;
-const W_TARGET_MIN = 74;
-const W_TARGET_MAX = 76;
+const PRESETS = {
+  cut:   { label:'DEFINICIÓN',    prot:210, carbs:230, fat:60, weightGoal:75 },
+  maint: { label:'MANTENIMIENTO', prot:190, carbs:315, fat:75, weightGoal:null },
+  bulk:  { label:'VOLUMEN',       prot:190, carbs:380, fat:80, weightGoal:90 },
+};
+const DEF_S = {
+  phase:'cut', prot:210, carbs:230, fat:60,
+  weightGoal:75, tdee:2724, height:178,
+  startKg:85.95, startDate:'2026-03-30',
+};
+
+function getS() {
+  const s = localStorage.getItem(K.settings);
+  const st = s ? { ...DEF_S, ...JSON.parse(s) } : { ...DEF_S };
+  st.kcal = kcalOf(st.prot, st.carbs, st.fat);
+  return st;
+}
+function saveS(st) { localStorage.setItem(K.settings, JSON.stringify(st)); }
 
 // ═══════════════════════════════════════════
-//  DEFAULT MEAL DATA
+//  DEFAULT MEAL DATA  (base = valores de referencia; f = grasa)
 // ═══════════════════════════════════════════
 const RAW_MEALS = [
   { id:'c1', name:'C1 Desayuno', time:'5:30 am', items:[
-    { id:'c1_1', name:'Claras de huevo x7', grams:245, p:28,   c:1,    g:0   },
-    { id:'c1_2', name:'Yemas x2',            grams:34,  p:5.5,  c:0.6,  g:9   },
-    { id:'c1_3', name:'Crema de arroz',       grams:80,  p:1.8,  c:65,   g:0.6 },
-    { id:'c1_4', name:'Papaya o yogurt griego',grams:150,p:1,    c:14,   g:0.3 },
+    { id:'c1_1', name:'Claras de huevo x7',      grams:245, p:28,   c:1,    f:0   },
+    { id:'c1_2', name:'Yemas x2',                grams:34,  p:5.5,  c:0.6,  f:9   },
+    { id:'c1_3', name:'Crema de arroz',           grams:80,  p:1.8,  c:65,   f:0.6 },
+    { id:'c1_4', name:'Papaya o yogurt griego',   grams:150, p:1,    c:14,   f:0.3 },
   ]},
   { id:'c2', name:'C2 Post-entreno', time:'8:00 am', items:[
-    { id:'c2_1', name:'Whey Iso Surge 2 scoops', grams:60,  p:50, c:4,  g:1.5 },
-    { id:'c2_2', name:'Avena',                   grams:50,  p:4,  c:30, g:3   },
-    { id:'c2_3', name:'Creatina 6g',             grams:6,   p:0,  c:0,  g:0   },
+    { id:'c2_1', name:'Whey Iso Surge 2 scoops', grams:60,  p:50, c:4,  f:1.5 },
+    { id:'c2_2', name:'Avena',                   grams:50,  p:4,  c:30, f:3   },
+    { id:'c2_3', name:'Creatina 6g',             grams:6,   p:0,  c:0,  f:0   },
   ]},
   { id:'c3', name:'C3 Almuerzo', time:'12:00 pm', items:[
-    { id:'c3_1', name:'Pechuga de pollo',          grams:200, p:48,  c:0,   g:4   },
-    { id:'c3_2', name:'Arroz cocido / papa amarilla',grams:180,p:4,   c:59,  g:0.5 },
-    { id:'c3_3', name:'Ensalada verde',            grams:200, p:3,   c:6,   g:0.5 },
-    { id:'c3_4', name:'Palta',                     grams:40,  p:0.4, c:1.5, g:6   },
+    { id:'c3_1', name:'Pechuga de pollo',            grams:200, p:48,  c:0,   f:4   },
+    { id:'c3_2', name:'Arroz cocido / papa amarilla',grams:180, p:4,   c:59,  f:0.5 },
+    { id:'c3_3', name:'Ensalada verde',              grams:200, p:3,   c:6,   f:0.5 },
+    { id:'c3_4', name:'Palta',                       grams:40,  p:0.4, c:1.5, f:6   },
   ]},
   { id:'c4', name:'C4 Media tarde', time:'3:30 pm', items:[
-    { id:'c4_1', name:'Pollo / atún en agua', grams:150, p:34,  c:0,  g:2   },
-    { id:'c4_2', name:'Camote sancochado',     grams:150, p:2,   c:34, g:0.2 },
-    { id:'c4_3', name:'Vegetales',             grams:100, p:1.5, c:4,  g:0.2 },
+    { id:'c4_1', name:'Pollo / atún en agua', grams:150, p:34,  c:0,  f:2   },
+    { id:'c4_2', name:'Camote sancochado',     grams:150, p:2,   c:34, f:0.2 },
+    { id:'c4_3', name:'Vegetales',             grams:100, p:1.5, c:4,  f:0.2 },
   ]},
   { id:'c5', name:'C5 Cena', time:'7:00 pm', items:[
-    { id:'c5_1', name:'Pescado blanco', grams:200, p:46,  c:0,   g:2.5 },
-    { id:'c5_2', name:'Papa amarilla',  grams:120, p:2.5, c:29,  g:0.1 },
-    { id:'c5_3', name:'Ensalada',       grams:200, p:3,   c:6,   g:0.5 },
-    { id:'c5_4', name:'Palta',          grams:40,  p:0.4, c:1.5, g:6   },
+    { id:'c5_1', name:'Pescado blanco', grams:200, p:46,  c:0,   f:2.5 },
+    { id:'c5_2', name:'Papa amarilla',  grams:120, p:2.5, c:29,  f:0.1 },
+    { id:'c5_3', name:'Ensalada',       grams:200, p:3,   c:6,   f:0.5 },
+    { id:'c5_4', name:'Palta',          grams:40,  p:0.4, c:1.5, f:6   },
   ]},
   { id:'c6', name:'C6 Suplementos', time:'Noche', items:[
-    { id:'c6_1', name:'L-Carnitina 1500mg',  grams:null, p:0, c:0, g:0 },
-    { id:'c6_2', name:'Glutamina 10g',        grams:10,   p:0, c:0, g:0 },
-    { id:'c6_3', name:'Magnesio Complex',     grams:null, p:0, c:0, g:0 },
+    { id:'c6_1', name:'L-Carnitina 1500mg', grams:null, p:0, c:0, f:0 },
+    { id:'c6_2', name:'Glutamina 10g',       grams:10,   p:0, c:0, f:0 },
+    { id:'c6_3', name:'Magnesio Complex',    grams:null, p:0, c:0, f:0 },
   ]},
 ];
 
 const DEFAULT_MEALS = RAW_MEALS.map(m => ({
-  ...m,
-  items: m.items.map(it => ({ ...it, kcal: kcalOf(it.p, it.c, it.g), eaten: false }))
+  id: m.id, name: m.name, time: m.time,
+  items: m.items.map(it => ({
+    id: it.id, name: it.name, grams: it.grams,
+    base: { g: it.grams, p: it.p, c: it.c, f: it.f },
+    eaten: false
+  }))
 }));
+
+// ═══════════════════════════════════════════
+//  PLANES DEL PREPARADOR (Cristian Montes)
+//  Corte: EdsonPalomino-PlanNutriconal.xlsx · Volumen: EdsonPalominoDieta.pdf
+//  Macros estimados con valores de referencia consistentes con el plan base
+// ═══════════════════════════════════════════
+function CI(id, name, grams, p, c, f) {
+  return { id, name, grams, base: { g: grams, p, c, f }, eaten: false };
+}
+
+const COACH_CUT = [
+  { id:'c1', name:'C1 Desayuno', time:'Mañana', items:[
+    CI('k1a','Claras de huevo x7',245,28,1,0),
+    CI('k1b','Yemas x2',34,5.5,0.6,9),
+    CI('k1c','Crema de arroz',70,1.6,57,0.5),
+    CI('k1d','Yogurt griego o papaya',250,15,12,1),
+  ]},
+  { id:'c2', name:'C2 Almuerzo', time:'Mediodía', items:[
+    CI('k2a','Pollo o carne de res',180,43,0,5),
+    CI('k2b','Arroz o papa amarilla',150,3.3,49,0.4),
+    CI('k2c','Vegetales (1 taza)',200,3,6,0.5),
+  ]},
+  { id:'c3', name:'C3 Media tarde', time:'Tarde', items:[
+    CI('k3a','Pollo',180,43,0,3.6),
+    CI('k3b','Crema de arroz',100,2.3,81,0.8),
+    CI('k3c','Vegetales (1 taza)',200,3,6,0.5),
+    CI('k3d','Palta',50,0.5,1.9,7.5),
+  ]},
+  { id:'c4', name:'C4 Cena', time:'Noche', items:[
+    CI('k4a','Pescado blanco',180,41,0,2.3),
+    CI('k4b','Papa amarilla o arroz',150,3.3,49,0.4),
+    CI('k4c','Vegetales (1 taza)',200,3,6,0.5),
+    CI('k4d','Palta',50,0.5,1.9,7.5),
+  ]},
+  { id:'c5', name:'C5 Última comida', time:'Noche', items:[
+    CI('k5a','Pescado blanco',180,41,0,2.3),
+    CI('k5b','Papa amarilla o arroz',100,2.2,33,0.3),
+    CI('k5c','Vegetales (1 taza)',200,3,6,0.5),
+    CI('k5d','Palta',50,0.5,1.9,7.5),
+  ]},
+  { id:'c6', name:'C6 Suplementos', time:'Cardio 45′ post-entreno', items:[
+    CI('k6a','ISO Whey 50g post-entreno',50,42,3.3,1.3),
+    CI('k6b','Glutamina 10g post-entreno',10,0,0,0),
+    CI('k6c','BCAA 5g cardio + 5g entreno',10,0,0,0),
+    CI('k6d','L-Carnitina 500mg pre-cardio',null,0,0,0),
+    CI('k6e','Multivit + Omega3 + VitC/Magnesol',null,0,0,0),
+    CI('k6f','Vinagre de manzana (noche)',null,0,0,0),
+  ]},
+];
+
+const COACH_BULK = [
+  { id:'c1', name:'C1 Desayuno', time:'Mañana', items:[
+    CI('b1a','Claras de huevo x7',245,28,1,0),
+    CI('b1b','Yemas x2',34,5.5,0.6,9),
+    CI('b1c','Crema de arroz',100,2.3,81,0.8),
+    CI('b1d','Yogurt griego o papaya',250,15,12,1),
+  ]},
+  { id:'c2', name:'C2 Almuerzo', time:'Mediodía', items:[
+    CI('b2a','Pollo o carne de res',200,48,0,5),
+    CI('b2b','Arroz o papa amarilla',220,4.8,72,0.6),
+    CI('b2c','Vegetales (1 taza)',200,3,6,0.5),
+  ]},
+  { id:'c3', name:'C3 Media tarde', time:'Tarde', items:[
+    CI('b3a','Pollo o carne de res',200,48,0,5),
+    CI('b3b','Crema de arroz',150,3.4,122,1.2),
+    CI('b3c','Vegetales (1 taza)',200,3,6,0.5),
+    CI('b3d','Palta',40,0.4,1.5,6),
+  ]},
+  { id:'c4', name:'C4 Cena', time:'Noche', items:[
+    CI('b4a','Pollo o carne de res',200,48,0,5),
+    CI('b4b','Papa amarilla o arroz',220,4.8,72,0.6),
+    CI('b4c','Vegetales (1 taza)',200,3,6,0.5),
+    CI('b4d','Palta',60,0.6,2.2,9),
+  ]},
+  { id:'c5', name:'C5 Última comida', time:'Noche', items:[
+    CI('b5a','Pescado',200,46,0,2.5),
+    CI('b5b','Papa amarilla o arroz',220,4.8,72,0.6),
+    CI('b5c','Vegetales (1 taza)',200,3,6,0.5),
+    CI('b5d','Palta',60,0.6,2.2,9),
+  ]},
+  { id:'c6', name:'C6 Suplementos', time:'Cardio 1h diario', items:[
+    CI('b6a','ISO Whey 50g post-entreno',50,42,3.3,1.3),
+    CI('b6b','Glutamina 10g post-entreno',10,0,0,0),
+    CI('b6c','BCAA 5g cardio + 5g entreno',10,0,0,0),
+    CI('b6d','L-Carnitina 1500mg pre-cardio ayunas',null,0,0,0),
+    CI('b6e','Multivit + Omega3 + VitC/Magnesol',null,0,0,0),
+    CI('b6f','Ashwagandha antes de dormir',null,0,0,0),
+    CI('b6g','Vinagre de manzana (noche)',null,0,0,0),
+  ]},
+];
 
 // ═══════════════════════════════════════════
 //  DEFAULT WORKOUT DATA
@@ -700,30 +979,30 @@ const WK = {
     { id:'D1e8', name:'Rompe Cráneos',              muscle:'Trícep', note:'Codos fijos',                           sets:mkSets(4,15) },
   ]},
   D2: { name:'PULL', sub:'Espalda · Bícep', rest:false, exercises:[
-    { id:'D2e1', name:'Jalón Agarre Amplio',       muscle:'Espalda', note:'Barra al pecho',                sets:mkSets(5,15) },
-    { id:'D2e2', name:'Serrucho Jalón Cadera',     muscle:'Espalda', note:'Codo atrás',                    sets:mkSets(4,15) },
-    { id:'D2e3', name:'Remo Máquina + Barra',      muscle:'Espalda', note:'',                              sets:mkSets(4,'20+12') },
-    { id:'D2e4', name:'Serrucho Banco + Pullover', muscle:'Espalda', note:'',                              sets:mkSets(4,'20+20') },
-    { id:'D2e5', name:'Dominadas',                 muscle:'Espalda', note:'Si >12 reps añade lastre',      sets:mkSets(5,'Fallo') },
-    { id:'D2e6', name:'Curl Barra Z',              muscle:'Bícep',   note:'',                              sets:mkSets(4,'5P+10R') },
-    { id:'D2e7', name:'Martillo Mancuerna',        muscle:'Bícep',   note:'',                              sets:mkSets(4,'5P+10R') },
+    { id:'D2e1', name:'Jalón Agarre Amplio',       muscle:'Espalda', note:'Barra al pecho',           sets:mkSets(5,15) },
+    { id:'D2e2', name:'Serrucho Jalón Cadera',     muscle:'Espalda', note:'Codo atrás',               sets:mkSets(4,15) },
+    { id:'D2e3', name:'Remo Máquina + Barra',      muscle:'Espalda', note:'',                         sets:mkSets(4,'20+12') },
+    { id:'D2e4', name:'Serrucho Banco + Pullover', muscle:'Espalda', note:'',                         sets:mkSets(4,'20+20') },
+    { id:'D2e5', name:'Dominadas',                 muscle:'Espalda', note:'Si >12 reps añade lastre', sets:mkSets(5,'Fallo') },
+    { id:'D2e6', name:'Curl Barra Z',              muscle:'Bícep',   note:'',                         sets:mkSets(4,'5P+10R') },
+    { id:'D2e7', name:'Martillo Mancuerna',        muscle:'Bícep',   note:'',                         sets:mkSets(4,'5P+10R') },
   ]},
   D3: { name:'FEMORAL', sub:'Femoral · Glúteo', rest:false, exercises:[
-    { id:'D3e1', name:'Femoral Tumbado',           muscle:'Femoral', note:'',               sets:mkSets(4,'5P+10R+5P+10R') },
-    { id:'D3e2', name:'Peso Muerto',               muscle:'Femoral', note:'Bajada lenta',   sets:mkSets(4,'10+10') },
-    { id:'D3e3', name:'Femoral Sentado',           muscle:'Femoral', note:'',               sets:mkSets(4,'5P+10R') },
-    { id:'D3e4', name:'Sumo + Hiperextensión',     muscle:'Glúteo',  note:'',               sets:mkSets(4,'20+20') },
-    { id:'D3e5', name:'Prensa Pies Juntos Arriba', muscle:'Femoral', note:'',               sets:mkSets(4,30) },
-    { id:'D3e6', name:'Levantamiento de Pelvis',   muscle:'Glúteo',  note:'',               sets:mkSets(5,'10P+10R') },
-    { id:'D3e7', name:'Abducción',                 muscle:'Glúteo',  note:'',               sets:mkSets(5,30) },
+    { id:'D3e1', name:'Femoral Tumbado',           muscle:'Femoral', note:'',             sets:mkSets(4,'5P+10R+5P+10R') },
+    { id:'D3e2', name:'Peso Muerto',               muscle:'Femoral', note:'Bajada lenta', sets:mkSets(4,'10+10') },
+    { id:'D3e3', name:'Femoral Sentado',           muscle:'Femoral', note:'',             sets:mkSets(4,'5P+10R') },
+    { id:'D3e4', name:'Sumo + Hiperextensión',     muscle:'Glúteo',  note:'',             sets:mkSets(4,'20+20') },
+    { id:'D3e5', name:'Prensa Pies Juntos Arriba', muscle:'Femoral', note:'',             sets:mkSets(4,30) },
+    { id:'D3e6', name:'Levantamiento de Pelvis',   muscle:'Glúteo',  note:'',             sets:mkSets(5,'10P+10R') },
+    { id:'D3e7', name:'Abducción',                 muscle:'Glúteo',  note:'',             sets:mkSets(5,30) },
   ]},
   D4: { name:'DESCANSO ACTIVO', sub:'Camina · Movilidad · Stretching', rest:true, exercises:[] },
   D5: { name:'CUÁDRICEP', sub:'Cuádrip. · Aducción', rest:false, exercises:[
-    { id:'D5e1', name:'Hack Squat + Sentadillas', muscle:'Cuádrip.', note:'',                                          sets:mkSets(4,'15+20') },
-    { id:'D5e2', name:'Prensa + Saltos',          muscle:'Cuádrip.', note:'',                                          sets:mkSets(4,'15+20') },
-    { id:'D5e3', name:'Hack Péndulo + Marchas',   muscle:'Cuádrip.', note:'',                                          sets:mkSets(4,'15+march') },
+    { id:'D5e1', name:'Hack Squat + Sentadillas', muscle:'Cuádrip.', note:'',                                                sets:mkSets(4,'15+20') },
+    { id:'D5e2', name:'Prensa + Saltos',          muscle:'Cuádrip.', note:'',                                                sets:mkSets(4,'15+20') },
+    { id:'D5e3', name:'Hack Péndulo + Marchas',   muscle:'Cuádrip.', note:'',                                                sets:mkSets(4,'15+march') },
     { id:'D5e4', name:'Extensora Drop Set',       muscle:'Cuádrip.', note:'15 → baja 2p → 15 pausadas → baja 2p → 15 lento', sets:mkSets(4,'DROP') },
-    { id:'D5e5', name:'Aducción',                 muscle:'Cuádrip.', note:'',                                          sets:mkSets(5,20) },
+    { id:'D5e5', name:'Aducción',                 muscle:'Cuádrip.', note:'',                                                sets:mkSets(5,20) },
   ]},
   D6: { name:'ARMS', sub:'Hombro · Bícep · Trícep', rest:false, exercises:[
     { id:'D6e1', name:'Press Militar Máquina',  muscle:'Hombro', note:'Normal + lateral + frontal', sets:mkSets(4,'12×3') },
@@ -748,28 +1027,41 @@ const INITIAL_WEIGHTS = [
 //  STORAGE KEYS
 // ═══════════════════════════════════════════
 const K = {
-  food:    d  => `ftm_food_${d}`,
-  workout: (d,day) => `ftm_wk_${d}_${day}`,
-  weights: 'ftm_weights',
-  currDay: 'ftm_currday',
+  food:     d => `ftm_food_${d}`,
+  workout:  (d, day) => `ftm_wk_${d}_${day}`,
+  weights:  'ftm_weights',
+  currDay:  'ftm_currday',
+  settings: 'ftm_settings',
+  lib:      'ftm_library',
+  template: 'ftm_template',
+  exhist:   'ftm_exhist',
 };
 
 // ═══════════════════════════════════════════
-//  UTILS
+//  UTILS  (fechas SIEMPRE en hora local)
 // ═══════════════════════════════════════════
-function today() { return new Date().toISOString().split('T')[0]; }
-function kcalOf(p, c, g) { return Math.round(p * 4 + c * 4 + g * 9); }
+function dstr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function today() { return dstr(new Date()); }
+function kcalOf(p, c, f) { return Math.round(p * 4 + c * 4 + f * 9); }
 function r1(n) { return Math.round(n * 10) / 10; }
-function pct(v, max) { return Math.min(100, Math.max(0, Math.round(v / max * 100))); }
+function pct(v, max) { return max > 0 ? Math.min(100, Math.max(0, Math.round(v / max * 100))) : 0; }
 
 function navyBF(waist, neck) {
+  const h = getS().height;
   if (!waist || !neck || waist <= neck) return null;
-  return r1(86.010 * Math.log10(waist - neck) - 70.041 * Math.log10(HEIGHT) + 36.76);
+  return r1(86.010 * Math.log10(waist - neck) - 70.041 * Math.log10(h) + 36.76);
 }
 
-function fmtDate(d) {
-  const dt = new Date(d + 'T12:00:00');
-  return dt.toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'2-digit' });
+const MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function fmtDate(ds) {
+  const [y, m, d] = ds.split('-');
+  return `${d} ${MESES[+m-1]} ${y.slice(2)}`;
+}
+function fmtShort(ds) {
+  const [, m, d] = ds.split('-');
+  return `${+d} ${MESES[+m-1]}`;
 }
 
 let toastTmr;
@@ -781,6 +1073,27 @@ function toast(msg) {
   toastTmr = setTimeout(() => el.classList.remove('show'), 2500);
 }
 
+// Escalado por gramos: macros actuales = base × (grams / base.g)
+function macrosOf(it) {
+  let factor = 1;
+  if (it.base.g && it.grams) factor = it.grams / it.base.g;
+  const p = r1(it.base.p * factor);
+  const c = r1(it.base.c * factor);
+  const f = r1(it.base.f * factor);
+  return { p, c, f, kcal: kcalOf(p, c, f) };
+}
+
+// Migración de ítems v1 ({p,c,g,kcal}) → v2 ({base:{g,p,c,f}})
+function upgradeItem(it) {
+  if (it.base) return it;
+  return {
+    id: it.id, name: it.name, grams: it.grams ?? null,
+    base: { g: it.grams ?? null, p: it.p || 0, c: it.c || 0, f: it.g || 0 },
+    eaten: !!it.eaten
+  };
+}
+function upgradeMeal(m) { m.items = m.items.map(upgradeItem); return m; }
+
 // ═══════════════════════════════════════════
 //  STORAGE
 // ═══════════════════════════════════════════
@@ -791,20 +1104,40 @@ function getWeights() {
   return JSON.parse(JSON.stringify(INITIAL_WEIGHTS));
 }
 function saveWeights(w) { localStorage.setItem(K.weights, JSON.stringify(w)); }
+function latestWeight() {
+  const w = [...getWeights()].sort((a,b) => a.date.localeCompare(b.date));
+  return w[w.length - 1] || { kg: DEF_S.startKg, bf: null };
+}
 
 function getTodayFood() {
   const s = localStorage.getItem(K.food(today()));
-  return s ? JSON.parse(s) : JSON.parse(JSON.stringify(DEFAULT_MEALS));
+  if (s) return JSON.parse(s).map(upgradeMeal);
+  const t = localStorage.getItem(K.template);
+  const src = t ? JSON.parse(t) : DEFAULT_MEALS;
+  return JSON.parse(JSON.stringify(src)).map(upgradeMeal);
 }
 function saveTodayFood(m) { localStorage.setItem(K.food(today()), JSON.stringify(m)); }
+
+function getFoodTotalsFor(ds) {
+  const s = localStorage.getItem(K.food(ds));
+  if (!s) return null;
+  let kcal = 0, p = 0, c = 0, f = 0;
+  JSON.parse(s).map(upgradeMeal).forEach(m => m.items.forEach(it => {
+    if (it.eaten) {
+      const mm = macrosOf(it);
+      kcal += mm.kcal; p += mm.p; c += mm.c; f += mm.f;
+    }
+  }));
+  return { kcal: Math.round(kcal), p: r1(p), c: r1(c), f: r1(f) };
+}
 
 function getWorkoutLog(dayKey) {
   const s = localStorage.getItem(K.workout(today(), dayKey));
   if (s) return JSON.parse(s);
-  return JSON.parse(JSON.stringify(WK[dayKey].exercises.map(ex => ({
+  return WK[dayKey].exercises.map(ex => ({
     id: ex.id,
-    sets: ex.sets.map(s => ({ target: s.target, reps: '', kg: '', done: false }))
-  }))));
+    sets: ex.sets.map(st => ({ target: st.target, reps: '', kg: '', done: false }))
+  }));
 }
 function saveWorkoutLog(dayKey, data) {
   localStorage.setItem(K.workout(today(), dayKey), JSON.stringify(data));
@@ -813,11 +1146,18 @@ function saveWorkoutLog(dayKey, data) {
 function getCurrDay() { return localStorage.getItem(K.currDay) || 'D1'; }
 function setCurrDay(d) { localStorage.setItem(K.currDay, d); }
 
+function getLib() { const s = localStorage.getItem(K.lib); return s ? JSON.parse(s) : []; }
+function saveLib(l) { localStorage.setItem(K.lib, JSON.stringify(l)); }
+function libFind(name) {
+  return getLib().find(x => x.name.toLowerCase() === name.toLowerCase());
+}
+
+function getExHist() { const s = localStorage.getItem(K.exhist); return s ? JSON.parse(s) : {}; }
+function saveExHist(h) { localStorage.setItem(K.exhist, JSON.stringify(h)); }
+
 // ═══════════════════════════════════════════
 //  NAVIGATION
 // ═══════════════════════════════════════════
-let wChart = null;
-
 function navigate(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
@@ -833,54 +1173,65 @@ function navigate(page) {
 //  DASHBOARD
 // ═══════════════════════════════════════════
 function renderDashboard() {
+  const st = getS();
   const now = new Date();
-  const days = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   document.getElementById('dash-date').textContent =
-    `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+    `${dias[now.getDay()]}, ${now.getDate()} ${MESES[now.getMonth()]} ${now.getFullYear()}`;
+  document.getElementById('dash-phase').textContent =
+    `${PRESETS[st.phase].label} · ${st.kcal} KCAL`;
 
-  const start = new Date(now.getFullYear(), 0, 1);
-  const wk = Math.ceil(((now - start) / 86400000 + start.getDay() + 1) / 7);
-  document.getElementById('dash-week').textContent = wk;
-
-  const weights = getWeights();
-  const latest = weights[weights.length - 1] || { kg: W_START, bf: null };
+  const latest = latestWeight();
   document.getElementById('d-kg').textContent = latest.kg;
   document.getElementById('d-bf').textContent = latest.bf != null ? r1(latest.bf) : '—';
 
-  const totalDrop = W_START - W_TARGET;
-  const dropped = W_START - latest.kg;
-  document.getElementById('d-weight-bar').style.width = pct(dropped, totalDrop) + '%';
-  const toGo = r1(Math.max(0, latest.kg - W_TARGET));
-  document.getElementById('d-togo').textContent = toGo > 0 ? `Faltan ${toGo} kg` : '¡Meta alcanzada!';
+  // Progreso de fase (funciona en ambas direcciones: corte o volumen)
+  const start = st.startKg, goal = st.weightGoal, cur = latest.kg;
+  const total = Math.abs(start - goal);
+  const done = start > goal ? start - cur : cur - start;
+  document.getElementById('d-weight-bar').style.width = pct(done, total) + '%';
+  document.getElementById('d-goal-lbl').textContent   = `Desde ${fmtShort(st.startDate)}`;
+  document.getElementById('d-start-lbl').textContent  = `Inicio: ${start} kg`;
+  document.getElementById('d-target-lbl').textContent = `Meta: ${goal} kg`;
+  const toGo = r1(Math.abs(cur - goal));
+  document.getElementById('d-togo').textContent =
+    toGo > 0.2 ? `Faltan ${toGo} kg` : '¡Meta alcanzada!';
 
-  const meals = getTodayFood();
-  let tKcal = 0, tP = 0, tC = 0, tG = 0;
-  meals.forEach(m => m.items.forEach(it => {
-    if (it.eaten) { tKcal += it.kcal; tP += it.p; tC += it.c; tG += it.g; }
-  }));
-  tKcal = Math.round(tKcal); tP = r1(tP); tC = r1(tC); tG = r1(tG);
+  // Macros de hoy
+  const t = getFoodTotalsFor(today()) || { kcal: 0, p: 0, c: 0, f: 0 };
+  document.getElementById('d-kcal').textContent  = t.kcal;
+  document.getElementById('d-prot').textContent  = t.p + 'g';
+  document.getElementById('d-carbs').textContent = t.c + 'g';
+  document.getElementById('d-fat').textContent   = t.f + 'g';
+  document.getElementById('d-kcal-lbl').textContent  = `${t.kcal} / ${st.kcal}`;
+  document.getElementById('d-prot-lbl').textContent  = `${t.p}g / ${st.prot}g`;
+  document.getElementById('d-carbs-lbl').textContent = `${t.c}g / ${st.carbs}g`;
+  document.getElementById('d-fat-lbl').textContent   = `${t.f}g / ${st.fat}g`;
+  document.getElementById('d-bar-kcal').style.width  = pct(t.kcal, st.kcal) + '%';
+  document.getElementById('d-bar-prot').style.width  = pct(t.p, st.prot) + '%';
+  document.getElementById('d-bar-carbs').style.width = pct(t.c, st.carbs) + '%';
+  document.getElementById('d-bar-fat').style.width   = pct(t.f, st.fat) + '%';
 
-  document.getElementById('d-kcal').textContent  = tKcal;
-  document.getElementById('d-prot').textContent  = tP + 'g';
-  document.getElementById('d-carbs').textContent = tC + 'g';
-  document.getElementById('d-fat').textContent   = tG + 'g';
-  document.getElementById('d-kcal-lbl').textContent  = `${tKcal} / ${GOALS.kcal}`;
-  document.getElementById('d-prot-lbl').textContent  = `${tP}g / ${GOALS.prot}g`;
-  document.getElementById('d-carbs-lbl').textContent = `${tC}g / ${GOALS.carbs}g`;
-  document.getElementById('d-fat-lbl').textContent   = `${tG}g / ${GOALS.fat}g`;
-  document.getElementById('d-bar-kcal').style.width  = pct(tKcal, GOALS.kcal) + '%';
-  document.getElementById('d-bar-prot').style.width  = pct(tP, GOALS.prot) + '%';
-  document.getElementById('d-bar-carbs').style.width = pct(tC, GOALS.carbs) + '%';
-  document.getElementById('d-bar-fat').style.width   = pct(tG, GOALS.fat) + '%';
-
-  const bal = tKcal - GOALS.kcal;
+  // Balance con semántica de fase
+  const bal = t.kcal - st.kcal;
   const balEl = document.getElementById('d-balance');
   balEl.textContent = (bal >= 0 ? '+' : '') + bal;
-  balEl.style.color = bal <= 0 ? 'var(--lime)' : 'var(--orange)';
-  document.getElementById('d-balance-lbl').textContent = bal <= 0 ? 'kcal de déficit' : 'kcal de exceso';
+  let good, lbl;
+  if (st.phase === 'bulk') {
+    good = bal >= -100;
+    lbl = bal >= 0 ? 'kcal de superávit' : 'kcal por debajo del objetivo';
+  } else if (st.phase === 'cut') {
+    good = bal <= 0;
+    lbl = bal <= 0 ? 'kcal bajo el objetivo' : 'kcal de exceso';
+  } else {
+    good = Math.abs(bal) <= 100;
+    lbl = 'kcal vs mantenimiento';
+  }
+  balEl.style.color = good ? 'var(--lime)' : 'var(--orange)';
+  document.getElementById('d-balance-lbl').textContent = lbl;
 
   renderWeekDots();
+  renderHistory(st);
 }
 
 function renderWeekDots() {
@@ -894,7 +1245,7 @@ function renderWeekDots() {
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
-    const ds = d.toISOString().split('T')[0];
+    const ds = dstr(d);
     const isToday = ds === today();
     const logged = !!localStorage.getItem(K.food(ds));
     const div = document.createElement('div');
@@ -908,6 +1259,54 @@ function renderWeekDots() {
   }
 }
 
+function renderHistory(st) {
+  const rows = [];
+  let sum7 = 0, sump7 = 0, n7 = 0;
+  for (let i = 0; i < 14; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const ds = dstr(d);
+    const t = getFoodTotalsFor(ds);
+    if (!t || t.kcal === 0) continue;
+    if (i < 7) { sum7 += t.kcal; sump7 += t.p; n7++; }
+    rows.push({ ds, ...t });
+  }
+
+  const statsEl = document.getElementById('d-hist-stats');
+  if (n7 > 0) {
+    const avg = Math.round(sum7 / n7);
+    const avgP = Math.round(sump7 / n7);
+    const projKg = r1((avg - st.tdee) * 7 / 7700);
+    const projTxt = (projKg >= 0 ? '+' : '') + projKg + ' kg/sem';
+    const projColor = (st.phase === 'bulk' ? projKg >= 0 : projKg <= 0) ? 'var(--lime)' : 'var(--orange)';
+    statsEl.innerHTML = `
+      <div class="hist-stats">
+        <span style="color:var(--text2)">Prom. 7d: <b class="mono" style="color:var(--text)">${avg} kcal</b> · P${avgP}</span>
+        <span style="color:var(--text2)">Proy: <b class="mono" style="color:${projColor}">${projTxt}</b></span>
+      </div>`;
+  } else {
+    statsEl.innerHTML = '';
+  }
+
+  const cont = document.getElementById('d-history');
+  if (rows.length === 0) {
+    cont.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Sin registros aún</div>';
+    return;
+  }
+  cont.innerHTML = rows.map(row => {
+    const dev = (row.kcal - st.kcal) / st.kcal;
+    let color = 'var(--text2)';
+    if (Math.abs(dev) <= 0.05) color = 'var(--lime)';
+    else if (dev > 0.05) color = 'var(--orange)';
+    return `
+      <div class="hist-row">
+        <span class="hist-date">${fmtShort(row.ds)}</span>
+        <div class="prog-bar"><div class="prog-fill fill-lime" style="width:${pct(row.kcal, st.kcal)}%"></div></div>
+        <span class="hist-kcal" style="color:${color}">${row.kcal} · P${Math.round(row.p)}</span>
+      </div>`;
+  }).join('');
+}
+
 // ═══════════════════════════════════════════
 //  FOOD
 // ═══════════════════════════════════════════
@@ -917,23 +1316,33 @@ let openMeals = new Set(['c1']);
 function renderFood() {
   foodMeals = getTodayFood();
   updateFoodTotals();
+  renderLibDatalist();
   renderMeals();
 }
 
+function renderLibDatalist() {
+  document.getElementById('lib-list').innerHTML =
+    getLib().map(x => `<option value="${x.name}"></option>`).join('');
+}
+
 function updateFoodTotals() {
-  let tK = 0, tP = 0, tC = 0, tG = 0;
+  const st = getS();
+  let tK = 0, tP = 0, tC = 0, tF = 0;
   foodMeals.forEach(m => m.items.forEach(it => {
-    if (it.eaten) { tK += it.kcal; tP += it.p; tC += it.c; tG += it.g; }
+    if (it.eaten) {
+      const mm = macrosOf(it);
+      tK += mm.kcal; tP += mm.p; tC += mm.c; tF += mm.f;
+    }
   }));
   tK = Math.round(tK);
   document.getElementById('f-kcal').textContent  = tK;
   document.getElementById('f-prot').textContent  = r1(tP) + 'g';
   document.getElementById('f-carbs').textContent = r1(tC) + 'g';
-  document.getElementById('f-fat').textContent   = r1(tG) + 'g';
-  document.getElementById('r-kcal').textContent  = Math.max(0, GOALS.kcal - tK);
-  document.getElementById('r-prot').textContent  = Math.max(0, r1(GOALS.prot - tP)) + 'g';
-  document.getElementById('r-carbs').textContent = Math.max(0, r1(GOALS.carbs - tC)) + 'g';
-  document.getElementById('r-fat').textContent   = Math.max(0, r1(GOALS.fat - tG)) + 'g';
+  document.getElementById('f-fat').textContent   = r1(tF) + 'g';
+  document.getElementById('r-kcal').textContent  = Math.max(0, st.kcal - tK);
+  document.getElementById('r-prot').textContent  = Math.max(0, r1(st.prot - tP)) + 'g';
+  document.getElementById('r-carbs').textContent = Math.max(0, r1(st.carbs - tC)) + 'g';
+  document.getElementById('r-fat').textContent   = Math.max(0, r1(st.fat - tF)) + 'g';
 }
 
 function renderMeals() {
@@ -944,7 +1353,7 @@ function renderMeals() {
     const open = openMeals.has(meal.id);
     const eaten = meal.items.filter(i => i.eaten).length;
     const all = meal.items.length;
-    const mKcal = meal.items.reduce((s, it) => s + it.kcal, 0);
+    const mKcal = Math.round(meal.items.reduce((s, it) => s + macrosOf(it).kcal, 0));
     const allEaten = eaten === all && all > 0;
 
     const div = document.createElement('div');
@@ -965,17 +1374,17 @@ function renderMeals() {
             ${allEaten ? 'Desmarcar todo' : 'Marcar todo ✓'}
           </button>
         </div>
-        ${meal.items.map((it, ii) => foodItemHTML(meal.id, it, mi, ii)).join('')}
+        ${meal.items.map((it, ii) => foodItemHTML(it, mi, ii)).join('')}
         <div class="add-food-area">
           <div class="add-food-lbl">AÑADIR ALIMENTO</div>
           <div class="add-row1">
-            <input class="fi" type="text" placeholder="Nombre del alimento" id="an-${mi}">
+            <input class="fi" type="text" list="lib-list" placeholder="Nombre (busca en tu biblioteca)" id="an-${mi}">
           </div>
           <div class="add-row2">
-            <input class="fi mini" type="number" min="0" step="1"   placeholder="g"    id="ag-${mi}">
-            <input class="fi mini" type="number" min="0" step="0.1" placeholder="P"    id="ap-${mi}">
-            <input class="fi mini" type="number" min="0" step="0.1" placeholder="C"    id="ac-${mi}">
-            <input class="fi mini" type="number" min="0" step="0.1" placeholder="Gr"   id="af-${mi}">
+            <input class="fi mini" type="number" inputmode="decimal" min="0" step="1"   placeholder="g" id="ag-${mi}">
+            <input class="fi mini" type="number" inputmode="decimal" min="0" step="0.1" placeholder="P" id="ap-${mi}">
+            <input class="fi mini" type="number" inputmode="decimal" min="0" step="0.1" placeholder="C" id="ac-${mi}">
+            <input class="fi mini" type="number" inputmode="decimal" min="0" step="0.1" placeholder="G" id="af-${mi}">
           </div>
           <button class="btn-lime" style="font-size:12px;padding:8px" onclick="addFood(${mi})">+ Añadir alimento</button>
         </div>
@@ -985,7 +1394,12 @@ function renderMeals() {
   window.scrollTo(0, sy);
 }
 
-function foodItemHTML(mealId, it, mi, ii) {
+function foodItemHTML(it, mi, ii) {
+  const mm = macrosOf(it);
+  const gramsCell = it.base.g
+    ? `<input class="g-in" type="number" inputmode="decimal" min="1" value="${it.grams}"
+         onchange="updGrams(${mi},${ii},this.value)" title="gramos">`
+    : `<span class="g-none">—</span>`;
   return `
     <div class="food-item">
       <div class="f-check ${it.eaten ? 'checked' : ''}" onclick="toggleEaten(${mi},${ii})">
@@ -995,8 +1409,9 @@ function foodItemHTML(mealId, it, mi, ii) {
       </div>
       <div>
         <div class="f-name" style="${it.eaten ? 'text-decoration:line-through;color:var(--text2)' : ''}">${it.name}</div>
-        <div class="f-macros">P${it.p} · C${it.c} · G${it.g} · ${it.kcal}kcal${it.grams ? ' · ' + it.grams + 'g' : ''}</div>
+        <div class="f-macros">P${mm.p} · C${mm.c} · G${mm.f} · ${mm.kcal}kcal${it.base.g ? ' · ' + it.grams + 'g' : ''}</div>
       </div>
+      ${gramsCell}
       <button class="f-del" onclick="delFood(${mi},${ii})">×</button>
     </div>`;
 }
@@ -1008,6 +1423,15 @@ function toggleMeal(id) {
 
 function toggleEaten(mi, ii) {
   foodMeals[mi].items[ii].eaten = !foodMeals[mi].items[ii].eaten;
+  saveTodayFood(foodMeals);
+  updateFoodTotals();
+  renderMeals();
+}
+
+function updGrams(mi, ii, val) {
+  const g = parseFloat(val);
+  if (!g || g <= 0) { renderMeals(); return; }
+  foodMeals[mi].items[ii].grams = g;
   saveTodayFood(foodMeals);
   updateFoodTotals();
   renderMeals();
@@ -1031,15 +1455,56 @@ function markAll(mi) {
 function addFood(mi) {
   const name  = document.getElementById(`an-${mi}`).value.trim();
   const grams = parseFloat(document.getElementById(`ag-${mi}`).value) || null;
-  const p     = parseFloat(document.getElementById(`ap-${mi}`).value) || 0;
-  const c     = parseFloat(document.getElementById(`ac-${mi}`).value) || 0;
-  const g     = parseFloat(document.getElementById(`af-${mi}`).value) || 0;
+  let p = parseFloat(document.getElementById(`ap-${mi}`).value) || 0;
+  let c = parseFloat(document.getElementById(`ac-${mi}`).value) || 0;
+  let f = parseFloat(document.getElementById(`af-${mi}`).value) || 0;
   if (!name) { toast('Escribe el nombre'); return; }
-  foodMeals[mi].items.push({ id: `cu${Date.now()}`, name, grams, p, c, g, kcal: kcalOf(p,c,g), eaten: false });
+
+  // Sin macros pero con gramos + nombre en biblioteca → autocompletar
+  if (!p && !c && !f) {
+    const lf = libFind(name);
+    if (lf && grams) {
+      p = r1(lf.p100 * grams / 100);
+      c = r1(lf.c100 * grams / 100);
+      f = r1(lf.f100 * grams / 100);
+      toast(`✓ ${name} desde biblioteca`);
+    } else if (!lf) {
+      toast('Ingresa los macros (P/C/G)');
+      return;
+    } else {
+      toast('Ingresa los gramos');
+      return;
+    }
+  } else if (grams) {
+    // Macros nuevos con gramos → guardar en biblioteca (por 100g)
+    const lib = getLib().filter(x => x.name.toLowerCase() !== name.toLowerCase());
+    lib.push({ name, p100: r1(p*100/grams), c100: r1(c*100/grams), f100: r1(f*100/grams) });
+    saveLib(lib);
+  }
+
+  foodMeals[mi].items.push({
+    id: `cu${Date.now()}`, name, grams,
+    base: { g: grams, p, c, f }, eaten: false
+  });
   saveTodayFood(foodMeals);
   updateFoodTotals();
+  renderLibDatalist();
   renderMeals();
-  toast(`✓ ${name} añadido`);
+}
+
+function saveTemplate() {
+  if (!confirm('¿Guardar las comidas de hoy (ítems y gramos actuales) como tu plan base para todos los días?')) return;
+  const tpl = JSON.parse(JSON.stringify(foodMeals));
+  tpl.forEach(m => m.items.forEach(it => it.eaten = false));
+  localStorage.setItem(K.template, JSON.stringify(tpl));
+  toast('✓ Plan base guardado');
+}
+
+function resetDay() {
+  if (!confirm('¿Reiniciar el día de hoy con tu plan base? Se pierde lo marcado hoy.')) return;
+  localStorage.removeItem(K.food(today()));
+  renderFood();
+  toast('✓ Día reiniciado');
 }
 
 // ═══════════════════════════════════════════
@@ -1048,9 +1513,11 @@ function addFood(mi) {
 let currDay = 'D1';
 let wkLog = {};
 let openEx = new Set();
+let exHistCache = {};
 
 function renderWorkout() {
   currDay = getCurrDay();
+  exHistCache = getExHist();
   renderDayTabs();
   renderWorkoutContent();
 }
@@ -1072,6 +1539,11 @@ function selectDay(dk) {
   setCurrDay(dk);
   renderDayTabs();
   renderWorkoutContent();
+}
+
+function lastSession(exId) {
+  const arr = (exHistCache[exId] || []).filter(e => e.date !== today());
+  return arr[0] || null;
 }
 
 function renderWorkoutContent() {
@@ -1105,10 +1577,10 @@ function renderWorkoutContent() {
           <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1">${day.name}</div>
           <div style="font-size:12px;color:var(--text2);margin-top:2px">${day.sub}</div>
         </div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:22px;color:var(--lime)">${doneS}/${totalS}</div>
+        <div class="mono" style="font-size:22px;color:var(--lime)">${doneS}/${totalS}</div>
       </div>
       <div class="prog-bar" style="height:8px">
-        <div class="prog-fill fill-lime" style="width:${pct(doneS,totalS)}%"></div>
+        <div class="prog-fill fill-lime" style="width:${pct(doneS, totalS)}%"></div>
       </div>
     </div>
     <div id="ex-list"></div>`;
@@ -1120,11 +1592,16 @@ function renderExList() {
   if (!cont) return;
   cont.innerHTML = '';
   const day = WK[currDay];
-  day.exercises.forEach((ex, ei) => {
+  day.exercises.forEach(ex => {
     const sets = wkLog[ex.id] || ex.sets.map(s => ({ ...s }));
     wkLog[ex.id] = sets;
     const doneC = sets.filter(s => s.done).length;
     const open = openEx.has(ex.id);
+    const prev = lastSession(ex.id);
+    const prevTxt = prev
+      ? prev.sets.filter(s => s.kg || s.reps).map(s => `${s.kg || '–'}kg×${s.reps || '–'}`).join(' · ')
+      : '';
+
     const div = document.createElement('div');
     div.className = 'ex-card';
     div.innerHTML = `
@@ -1142,23 +1619,27 @@ function renderExList() {
       </div>
       <div class="ex-body ${open ? 'open' : ''}">
         ${ex.note ? `<div class="ex-note">${ex.note}</div>` : ''}
+        ${prevTxt ? `<div class="ex-prev">Anterior (${fmtShort(prev.date)}): ${prevTxt}</div>` : ''}
         <div class="sets-header">
           <span></span><span>Objetivo</span><span>Reps</span><span>kg</span><span></span>
         </div>
-        ${sets.map((set, si) => `
+        ${sets.map((set, si) => {
+          const ph = prev?.sets[si]?.kg || '—';
+          return `
           <div class="set-row">
             <div class="set-num">${si + 1}</div>
             <div class="set-target">${set.target}</div>
-            <input class="set-in" type="number" min="0" step="1" value="${set.reps}" placeholder="—"
+            <input class="set-in" type="number" inputmode="decimal" min="0" step="1" value="${set.reps}" placeholder="—"
               onchange="updSet('${ex.id}',${si},'reps',this.value)">
-            <input class="set-in" type="number" min="0" step="0.5" value="${set.kg}" placeholder="—"
+            <input class="set-in" type="number" inputmode="decimal" min="0" step="0.5" value="${set.kg}" placeholder="${ph}"
               onchange="updSet('${ex.id}',${si},'kg',this.value)">
             <button class="set-done ${set.done ? 'done' : ''}" onclick="toggleDone('${ex.id}',${si})">
               <svg viewBox="0 0 14 14" fill="none" stroke="#0a0a0a" stroke-width="2.5">
                 <polyline points="2 7 5.5 10.5 12 3"/>
               </svg>
             </button>
-          </div>`).join('')}
+          </div>`;
+        }).join('')}
         <button class="btn-add-set" onclick="addSet('${ex.id}')">+ Añadir serie</button>
       </div>`;
     cont.appendChild(div);
@@ -1193,6 +1674,16 @@ function addSet(exId) {
 
 function persistWorkout() {
   saveWorkoutLog(currDay, Object.keys(wkLog).map(id => ({ id, sets: wkLog[id] })));
+  // Historial por ejercicio para sobrecarga progresiva
+  const hist = getExHist();
+  Object.keys(wkLog).forEach(id => {
+    if (!wkLog[id].some(s => s.kg || s.reps)) return;
+    let arr = (hist[id] || []).filter(e => e.date !== today());
+    arr.unshift({ date: today(), sets: wkLog[id].map(s => ({ reps: s.reps, kg: s.kg })) });
+    hist[id] = arr.slice(0, 5);
+  });
+  saveExHist(hist);
+  exHistCache = hist;
 }
 
 // ═══════════════════════════════════════════
@@ -1201,7 +1692,7 @@ function persistWorkout() {
 function renderWeight() {
   document.getElementById('w-date').value = today();
   renderWeightTable();
-  renderWeightChart();
+  requestAnimationFrame(drawWeightChart);
 }
 
 function previewBF() {
@@ -1225,108 +1716,251 @@ function saveWeightEntry() {
   if (idx >= 0) weights[idx] = entry;
   else { weights.push(entry); weights.sort((a,b) => a.date.localeCompare(b.date)); }
   saveWeights(weights);
-  document.getElementById('w-kg').value    = '';
-  document.getElementById('w-waist').value = '';
-  document.getElementById('w-neck').value  = '';
-  document.getElementById('w-note').value  = '';
-  document.getElementById('w-bf-prev').value = '';
+  ['w-kg','w-waist','w-neck','w-note','w-bf-prev'].forEach(id => document.getElementById(id).value = '');
   toast(`✓ ${kg} kg guardado`);
   renderWeightTable();
-  renderWeightChart();
+  drawWeightChart();
+}
+
+function delWeight(date) {
+  if (!confirm(`¿Eliminar el registro del ${fmtDate(date)}?`)) return;
+  saveWeights(getWeights().filter(w => w.date !== date));
+  renderWeightTable();
+  drawWeightChart();
+  toast('✓ Registro eliminado');
 }
 
 function renderWeightTable() {
-  const weights = getWeights();
-  const sorted = [...weights].sort((a,b) => b.date.localeCompare(a.date));
+  const sorted = [...getWeights()].sort((a,b) => b.date.localeCompare(a.date));
   document.getElementById('w-tbody').innerHTML = sorted.map((w, i) => {
     const prev = sorted[i + 1];
     let delta = '—', dc = 'd-neu';
     if (prev) {
       const diff = r1(w.kg - prev.kg);
-      if (diff < 0) { delta = diff + ' kg'; dc = 'd-neg'; }
-      else if (diff > 0) { delta = '+' + diff + ' kg'; dc = 'd-pos'; }
+      if (diff < 0) { delta = diff + ''; dc = 'd-neg'; }
+      else if (diff > 0) { delta = '+' + diff; dc = 'd-pos'; }
     }
     return `<tr>
       <td style="padding-left:16px">${fmtDate(w.date)}</td>
-      <td style="color:var(--lime)">${w.kg} kg</td>
+      <td style="color:var(--lime)">${w.kg}</td>
       <td class="${dc}">${delta}</td>
       <td>${w.bf != null ? w.bf + '%' : '—'}</td>
-      <td style="color:var(--text2);padding-right:16px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w.note || '—'}</td>
+      <td style="color:var(--text2);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w.note || '—'}</td>
+      <td><button class="f-del" onclick="delWeight('${w.date}')">×</button></td>
     </tr>`;
   }).join('');
 }
 
-function renderWeightChart() {
-  const weights = getWeights();
-  const sorted = [...weights].sort((a,b) => a.date.localeCompare(b.date));
-  const labels = sorted.map(w => fmtDate(w.date));
-  const data   = sorted.map(w => w.kg);
-  const ctx = document.getElementById('weight-chart').getContext('2d');
-  if (wChart) { wChart.destroy(); wChart = null; }
-  if (data.length === 0) return;
-  const minY = Math.max(60, Math.min(...data, W_TARGET_MIN) - 1);
-  const maxY = Math.max(...data) + 1;
-  wChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Peso kg',
-          data,
-          borderColor: '#c8ff00',
-          backgroundColor: 'rgba(200,255,0,0.07)',
-          borderWidth: 2,
-          pointBackgroundColor: '#c8ff00',
-          pointRadius: 4,
-          pointHoverRadius: 7,
-          fill: true,
-          tension: 0.3,
-        },
-        {
-          label: 'Meta min',
-          data: Array(data.length).fill(W_TARGET_MIN),
-          borderColor: 'rgba(0,212,255,0.5)',
-          borderDash: [5,4],
-          borderWidth: 1,
-          pointRadius: 0, fill: false,
-        },
-        {
-          label: 'Meta max',
-          data: Array(data.length).fill(W_TARGET_MAX),
-          borderColor: 'rgba(0,212,255,0.25)',
-          borderDash: [5,4],
-          borderWidth: 1,
-          pointRadius: 0,
-          fill: '-1',
-          backgroundColor: 'rgba(0,212,255,0.04)',
-        },
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#141414',
-          borderColor: '#242424',
-          borderWidth: 1,
-          titleColor: '#888',
-          bodyColor: '#c8ff00',
-          callbacks: { label: ctx => ctx.parsed.y + ' kg' }
-        }
-      },
-      scales: {
-        x: { grid: { color: '#1e1e1e' }, ticks: { color: '#555', font: { size: 10 } } },
-        y: {
-          grid: { color: '#1e1e1e' },
-          ticks: { color: '#555', font: { family: 'JetBrains Mono', size: 11 } },
-          min: minY, max: maxY
-        }
-      }
-    }
+// Gráfica canvas propia — sin CDN, funciona offline
+function drawWeightChart() {
+  const cv = document.getElementById('weight-chart');
+  if (!cv || !cv.clientWidth) return;
+  const entries = [...getWeights()].sort((a,b) => a.date.localeCompare(b.date));
+  const ctx = cv.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const Wd = cv.clientWidth, H = 200;
+  cv.width = Wd * dpr; cv.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, Wd, H);
+  if (!entries.length) return;
+
+  const st = getS();
+  const goal = st.weightGoal;
+  const kgs = entries.map(e => e.kg);
+  const yMin = Math.min(...kgs, goal) - 1;
+  const yMax = Math.max(...kgs, goal) + 1;
+  const padL = 38, padR = 12, padT = 12, padB = 24;
+  const n = entries.length;
+  const px = i => n === 1 ? padL + (Wd - padL - padR) / 2 : padL + (Wd - padL - padR) * i / (n - 1);
+  const py = v => padT + (H - padT - padB) * (1 - (v - yMin) / (yMax - yMin));
+
+  // Grid + eje Y
+  ctx.font = '10px "JetBrains Mono", monospace';
+  ctx.textAlign = 'left';
+  for (let s = 0; s <= 4; s++) {
+    const v = yMin + (yMax - yMin) * s / 4;
+    const y = py(v);
+    ctx.strokeStyle = '#1e1e1e';
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(Wd - padR, y); ctx.stroke();
+    ctx.fillStyle = '#555';
+    ctx.fillText(v.toFixed(1), 2, y + 3);
+  }
+
+  // Banda de meta ±1kg
+  ctx.fillStyle = 'rgba(0,212,255,0.06)';
+  ctx.fillRect(padL, py(goal + 1), Wd - padL - padR, py(goal - 1) - py(goal + 1));
+  ctx.strokeStyle = 'rgba(0,212,255,0.4)';
+  ctx.setLineDash([5, 4]);
+  ctx.beginPath(); ctx.moveTo(padL, py(goal)); ctx.lineTo(Wd - padR, py(goal)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Área bajo la línea
+  ctx.beginPath();
+  entries.forEach((e, i) => { const x = px(i), y = py(e.kg); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+  ctx.lineTo(px(n - 1), H - padB); ctx.lineTo(px(0), H - padB); ctx.closePath();
+  ctx.fillStyle = 'rgba(200,255,0,0.06)'; ctx.fill();
+
+  // Línea + puntos
+  ctx.beginPath();
+  entries.forEach((e, i) => { const x = px(i), y = py(e.kg); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+  ctx.strokeStyle = '#c8ff00'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#c8ff00';
+  entries.forEach((e, i) => { ctx.beginPath(); ctx.arc(px(i), py(e.kg), 3.5, 0, 7); ctx.fill(); });
+
+  // Etiquetas X
+  ctx.fillStyle = '#555';
+  const xl = i => { const [, m, d] = entries[i].date.split('-'); return `${d}/${m}`; };
+  ctx.textAlign = 'left';  ctx.fillText(xl(0), padL, H - 8);
+  if (n > 2) { ctx.textAlign = 'center'; ctx.fillText(xl(Math.floor((n-1)/2)), px(Math.floor((n-1)/2)), H - 8); }
+  if (n > 1) { ctx.textAlign = 'right'; ctx.fillText(xl(n - 1), Wd - padR, H - 8); }
+  ctx.textAlign = 'left';
+}
+
+// ═══════════════════════════════════════════
+//  SETTINGS UI
+// ═══════════════════════════════════════════
+let selPhase = 'cut';
+
+function openSettings() {
+  const st = getS();
+  selPhase = st.phase;
+  document.getElementById('s-prot').value   = st.prot;
+  document.getElementById('s-carbs').value  = st.carbs;
+  document.getElementById('s-fat').value    = st.fat;
+  document.getElementById('s-goal').value   = st.weightGoal;
+  document.getElementById('s-tdee').value   = st.tdee;
+  document.getElementById('s-height').value = st.height;
+  updateChips();
+  calcKcal();
+  const tc = planTotals(COACH_CUT), tb = planTotals(COACH_BULK);
+  document.getElementById('cp-cut-kcal').textContent  = `~${tc.kcal} kcal · P${tc.p}`;
+  document.getElementById('cp-bulk-kcal').textContent = `~${tb.kcal} kcal · P${tb.p}`;
+  document.getElementById('settings-modal').classList.add('show');
+}
+
+function planTotals(meals) {
+  let p = 0, c = 0, f = 0;
+  meals.forEach(m => m.items.forEach(it => { p += it.base.p; c += it.base.c; f += it.base.f; }));
+  p = Math.round(p); c = Math.round(c); f = Math.round(f);
+  return { p, c, f, kcal: kcalOf(p, c, f) };
+}
+
+function loadCoachPlan(kind) {
+  const plan = kind === 'cut' ? COACH_CUT : COACH_BULK;
+  const t = planTotals(plan);
+  const name = kind === 'cut' ? 'CORTE' : 'VOLUMEN';
+  if (!confirm(`¿Cargar el plan ${name} del preparador?\n\n~${t.kcal} kcal · P${t.p} C${t.c} G${t.f}\n\nReemplaza tu plan base y tus macros objetivo. El día de hoy se reinicia con el nuevo plan.`)) return;
+  localStorage.setItem(K.template, JSON.stringify(plan));
+  localStorage.removeItem(K.food(today()));
+  const old = getS();
+  const ns = {
+    phase: kind === 'cut' ? 'cut' : 'bulk',
+    prot: t.p, carbs: t.c, fat: t.f,
+    weightGoal: old.weightGoal, tdee: old.tdee, height: old.height,
+    startKg: old.startKg, startDate: old.startDate,
+  };
+  if (ns.phase !== old.phase) {
+    ns.startKg = latestWeight().kg;
+    ns.startDate = today();
+    ns.weightGoal = PRESETS[ns.phase].weightGoal ?? old.weightGoal;
+  }
+  saveS(ns);
+  closeSettings();
+  navigate('food');
+  toast(`✓ Plan ${name} cargado (${t.kcal} kcal)`);
+}
+
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('show');
+}
+
+function updateChips() {
+  ['cut','maint','bulk'].forEach(ph => {
+    document.getElementById('chip-' + ph).classList.toggle('active', ph === selPhase);
   });
+}
+
+function pickPhase(ph) {
+  selPhase = ph;
+  const pr = PRESETS[ph];
+  document.getElementById('s-prot').value  = pr.prot;
+  document.getElementById('s-carbs').value = pr.carbs;
+  document.getElementById('s-fat').value   = pr.fat;
+  if (pr.weightGoal != null) document.getElementById('s-goal').value = pr.weightGoal;
+  updateChips();
+  calcKcal();
+}
+
+function calcKcal() {
+  const p = parseFloat(document.getElementById('s-prot').value) || 0;
+  const c = parseFloat(document.getElementById('s-carbs').value) || 0;
+  const f = parseFloat(document.getElementById('s-fat').value) || 0;
+  document.getElementById('s-kcal').textContent = kcalOf(p, c, f);
+}
+
+function saveSettings() {
+  const prot   = parseFloat(document.getElementById('s-prot').value);
+  const carbs  = parseFloat(document.getElementById('s-carbs').value);
+  const fat    = parseFloat(document.getElementById('s-fat').value);
+  const goal   = parseFloat(document.getElementById('s-goal').value);
+  const tdee   = parseFloat(document.getElementById('s-tdee').value);
+  const height = parseFloat(document.getElementById('s-height').value);
+  if (!prot || !carbs || !fat || !goal || !tdee || !height) {
+    toast('Completa todos los campos'); return;
+  }
+  const old = getS();
+  const ns = {
+    phase: selPhase, prot, carbs, fat,
+    weightGoal: goal, tdee, height,
+    startKg: old.startKg, startDate: old.startDate,
+  };
+  if (selPhase !== old.phase) {
+    ns.startKg = latestWeight().kg;
+    ns.startDate = today();
+  }
+  saveS(ns);
+  closeSettings();
+  renderDashboard();
+  toast(`✓ Fase: ${PRESETS[selPhase].label}`);
+}
+
+// ═══════════════════════════════════════════
+//  BACKUP
+// ═══════════════════════════════════════════
+function exportData() {
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('ftm_')) data[k] = localStorage.getItem(k);
+  }
+  const blob = new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `fitment-backup-${today()}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('✓ Backup exportado');
+}
+
+function importData(ev) {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const data = JSON.parse(r.result);
+      let n = 0;
+      Object.keys(data).forEach(k => {
+        if (k.startsWith('ftm_')) { localStorage.setItem(k, data[k]); n++; }
+      });
+      toast(`✓ ${n} registros restaurados`);
+      setTimeout(() => location.reload(), 900);
+    } catch (e) {
+      toast('Archivo inválido');
+    }
+  };
+  r.readAsText(file);
+  ev.target.value = '';
 }
 
 // ═══════════════════════════════════════════
@@ -1334,6 +1968,9 @@ function renderWeightChart() {
 // ═══════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   navigate('dashboard');
+});
+window.addEventListener('resize', () => {
+  if (document.getElementById('page-weight').classList.contains('active')) drawWeightChart();
 });
 </script>
 </body>
