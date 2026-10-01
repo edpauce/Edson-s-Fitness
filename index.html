@@ -753,7 +753,7 @@ body {
 
     <button class="btn-lime" onclick="saveSettings()">GUARDAR AJUSTES</button>
 
-    <div class="modal-sect">Planes del preparador (Cristian)</div>
+    <div class="modal-sect">Planes del preparador</div>
     <div style="display:flex;gap:8px">
       <button class="btn-ghost" onclick="loadCoachPlan('cut')">
         🥗 Plan CORTE<br><span class="mono" style="font-size:10px;color:var(--cyan)" id="cp-cut-kcal"></span>
@@ -839,8 +839,8 @@ const PRESETS = {
 };
 const DEF_S = {
   phase:'cut', prot:210, carbs:230, fat:60,
-  weightGoal:75, tdee:2724, height:178,
-  startKg:85.95, startDate:'2026-03-30',
+  weightGoal:75, tdee:2500, height:170,
+  startKg:null, startDate:null,          // el inicio se toma del primer pesaje
   rest:90, routine:'ppl',
 };
 
@@ -848,6 +848,10 @@ function getS() {
   const s = localStorage.getItem(K.settings);
   const st = s ? { ...DEF_S, ...JSON.parse(s) } : { ...DEF_S };
   st.kcal = kcalOf(st.prot, st.carbs, st.fat);
+  if (st.startKg == null) {                 // sin inicio guardado: el primer pesaje registrado
+    const w0 = [...getWeights()].sort((a,b) => a.date.localeCompare(b.date))[0];
+    if (w0) { st.startKg = w0.kg; st.startDate = w0.date; }
+  }
   return st;
 }
 function saveS(st) { localStorage.setItem(K.settings, JSON.stringify(st)); }
@@ -901,8 +905,7 @@ const DEFAULT_MEALS = RAW_MEALS.map(m => ({
 }));
 
 // ═══════════════════════════════════════════
-//  PLANES DEL PREPARADOR (Cristian Montes)
-//  Corte: EdsonPalomino-PlanNutriconal.xlsx · Volumen: EdsonPalominoDieta.pdf
+//  PLANES DEL PREPARADOR
 //  Macros estimados con valores de referencia consistentes con el plan base
 // ═══════════════════════════════════════════
 function CI(id, name, grams, p, c, f) {
@@ -1051,7 +1054,7 @@ const WK_PPL = {
 };
 
 // ═══════════════════════════════════════════
-//  RUTINA DEL PREPARADOR (Edson palomino.docx)
+//  RUTINA DEL PREPARADOR
 //  6 días · cuádriceps 2×/semana · ideal para volumen
 //  Los ejercicios compartidos reutilizan el mismo id → el historial y PRs se conservan
 // ═══════════════════════════════════════════
@@ -1092,12 +1095,8 @@ function syncRoutine() {
   WK = getS().routine === 'coach' ? WK_COACH : WK_PPL;
 }
 
-const INITIAL_WEIGHTS = [
-  { date:'2024-12-27', kg:88.6,  waist:null, neck:null, note:'InBody baseline 24.1% grasa', bf:24.1 },
-  { date:'2025-02-15', kg:85.2,  waist:null, neck:null, note:'', bf:null },
-  { date:'2025-03-10', kg:84.5,  waist:null, neck:null, note:'', bf:null },
-  { date:'2026-03-30', kg:85.95, waist:91,   neck:41,   note:'Post-viaje · Navy BF 25.3%', bf:25.3 },
-];
+// El historial de peso vive solo en el dispositivo (localStorage). Sin datos precargados.
+const INITIAL_WEIGHTS = [];
 
 // ═══════════════════════════════════════════
 //  STORAGE KEYS
@@ -1137,6 +1136,7 @@ function fmtDate(ds) {
   return `${d} ${MESES[+m-1]} ${y.slice(2)}`;
 }
 function fmtShort(ds) {
+  if (!ds) return '—';
   const [, m, d] = ds.split('-');
   return `${+d} ${MESES[+m-1]}`;
 }
@@ -1183,7 +1183,7 @@ function getWeights() {
 function saveWeights(w) { localStorage.setItem(K.weights, JSON.stringify(w)); }
 function latestWeight() {
   const w = [...getWeights()].sort((a,b) => a.date.localeCompare(b.date));
-  return w[w.length - 1] || { kg: DEF_S.startKg, bf: null };
+  return w[w.length - 1] || { kg: null, bf: null };
 }
 
 function getTodayFood() {
@@ -1263,20 +1263,28 @@ function renderDashboard() {
     `${PRESETS[st.phase].label} · ${st.kcal} KCAL`;
 
   const latest = latestWeight();
-  document.getElementById('d-kg').textContent = latest.kg;
+  document.getElementById('d-kg').textContent = latest.kg ?? '—';
   document.getElementById('d-bf').textContent = latest.bf != null ? r1(latest.bf) : '—';
 
   // Progreso de fase (funciona en ambas direcciones: corte o volumen)
   const start = st.startKg, goal = st.weightGoal, cur = latest.kg;
-  const total = Math.abs(start - goal);
-  const done = start > goal ? start - cur : cur - start;
-  document.getElementById('d-weight-bar').style.width = pct(done, total) + '%';
-  document.getElementById('d-goal-lbl').textContent   = `Desde ${fmtShort(st.startDate)}`;
-  document.getElementById('d-start-lbl').textContent  = `Inicio: ${start} kg`;
-  document.getElementById('d-target-lbl').textContent = `Meta: ${goal} kg`;
-  const toGo = r1(Math.abs(cur - goal));
-  document.getElementById('d-togo').textContent =
-    toGo > 0.2 ? `Faltan ${toGo} kg` : '¡Meta alcanzada!';
+  if (start == null || cur == null) {
+    document.getElementById('d-weight-bar').style.width = '0%';
+    document.getElementById('d-goal-lbl').textContent   = 'Sin pesajes';
+    document.getElementById('d-start-lbl').textContent  = 'Inicio: —';
+    document.getElementById('d-target-lbl').textContent = `Meta: ${goal} kg`;
+    document.getElementById('d-togo').textContent = 'Registra tu primer peso';
+  } else {
+    const total = Math.abs(start - goal);
+    const done = start > goal ? start - cur : cur - start;
+    document.getElementById('d-weight-bar').style.width = pct(done, total) + '%';
+    document.getElementById('d-goal-lbl').textContent   = `Desde ${fmtShort(st.startDate)}`;
+    document.getElementById('d-start-lbl').textContent  = `Inicio: ${start} kg`;
+    document.getElementById('d-target-lbl').textContent = `Meta: ${goal} kg`;
+    const toGo = r1(Math.abs(cur - goal));
+    document.getElementById('d-togo').textContent =
+      toGo > 0.2 ? `Faltan ${toGo} kg` : '¡Meta alcanzada!';
+  }
 
   // Macros de hoy
   const t = getFoodTotalsFor(today()) || { kcal: 0, p: 0, c: 0, f: 0 };
