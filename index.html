@@ -794,7 +794,10 @@ body {
         <div class="form-lbl">Descanso entre series (seg)</div>
         <input class="form-in" type="number" inputmode="decimal" min="15" step="15" id="s-rest">
       </div>
-      <div></div>
+      <div>
+        <div class="form-lbl">Ritmo de corte (kg/sem)</div>
+        <input class="form-in" type="number" inputmode="decimal" min="0.2" max="1" step="0.05" id="s-rate">
+      </div>
     </div>
 
     <div class="modal-sect">Rutina de entrenamiento</div>
@@ -922,6 +925,7 @@ const DEF_S = {
   rest:90, routine:'ul',
   sex:'m',                               // 'm' u 'f': elige la fórmula de % de grasa
   ownPlan:false,                         // true: la persona arma su propio plan y se ocultan los predefinidos
+  cutRate:0.4,                           // kg/semana que el coach busca bajar en definición
 };
 
 function getS() {
@@ -1321,38 +1325,40 @@ function exFigs(exId) {
 }
 
 // ═══════════════════════════════════════════
-//  PLAN DE COMIDA · CORTE NOV–ENE (~2,300 kcal)
-//  Mismos alimentos de siempre; proteína ~2.3 g/kg, grasa ~0.65 g/kg, fruta incluida.
+//  PLAN DE COMIDA · CORTE NOV–ENE (~2,050 kcal, ajustado 27-oct-2026)
+//  Mismos alimentos; proteína ~2.5 g/kg, carbohidratos concentrados antes y después de entrenar
+//  (pre-entreno ligero y líquido: entrena a las 6:00; los huevos van después),
+//  cena casi sin carbohidratos. Grasa ~0.6 g/kg.
 //  Valores por porción calculados con referencias USDA (crudos salvo arroz/papa/camote cocidos).
 // ═══════════════════════════════════════════
 const PLAN_CUT_26 = [
-  { id:'c1', name:'C1 Pre-entreno', time:'5:30 am', items:[
-    CI('n1a','Claras de huevo x7',245,26.7,1.7,0.5),
-    CI('n1b','Yemas x2',34,5.4,1.2,9),
-    CI('n1c','Crema de arroz',60,3.6,48,0.6),
-    CI('n1d','Papaya',150,0.8,16.5,0.5),
+  { id:'c1', name:'C1 Pre-entreno (ligero)', time:'5:30 am', items:[
+    CI('n1e','Whey isolate 1 scoop en agua',30,24.9,1.8,0.7),
+    CI('n1c','Crema de arroz',40,2.4,32,0.4),
+    CI('n1d','Papaya',100,0.5,11,0.3),
   ]},
   { id:'c2', name:'C2 Post-entreno', time:'8:00 am', items:[
-    CI('n2a','Whey isolate 1 scoop',30,24.9,1.8,0.7),
-    CI('n2b','Avena',40,5.2,26.4,2.8),
+    CI('n1a','Claras de huevo x7',245,26.7,1.7,0.5),
+    CI('n1b','Yemas x2',34,5.4,1.2,9),
+    CI('n2b','Avena (con ½ scoop de whey)',40,5.2,26.4,2.8),
+    CI('n2a','Whey isolate ½ scoop',15,12.5,0.9,0.4),
     CI('n2c','Fresas o arándanos',100,0.7,10,0.3),
     CI('n2d','Creatina 5 g',null,0,0,0),
   ]},
   { id:'c3', name:'C3 Almuerzo', time:'12:30 pm', items:[
-    CI('n3a','Pechuga de pollo (cruda)',200,46,0,3),
-    CI('n3b','Arroz cocido o papa amarilla',150,4.1,42,0.5),
+    CI('n3a','Pechuga de pollo (cruda)',220,50.6,0,3.3),
+    CI('n3b','Arroz cocido o papa amarilla',100,2.7,28,0.3),
     CI('n3c','Ensalada / vegetales',200,3,10,0.4),
-    CI('n3d','Palta',50,1,4.3,7.4),
+    CI('n3d','Palta',40,0.8,3.4,5.9),
   ]},
   { id:'c4', name:'C4 Media tarde', time:'4:00 pm', items:[
-    CI('n4a','Atún en agua (escurrido)',120,26.4,0,1.2),
-    CI('n4b','Camote sancochado',150,2.4,30,0.2),
+    CI('n4a','Atún en agua (escurrido)',150,33,0,1.5),
+    CI('n4b','Camote sancochado',100,1.6,20,0.1),
     CI('n4c','Vegetales',150,2.3,7.5,0.3),
-    CI('n4d','Almendras',30,6.3,6.6,15),
+    CI('n4d','Almendras',20,4.2,4.4,10),
   ]},
   { id:'c5', name:'C5 Cena', time:'7:30 pm', items:[
-    CI('n5a','Pescado blanco (crudo)',200,36,0,2),
-    CI('n5b','Papa amarilla cocida',120,2.4,26.4,0.1),
+    CI('n5a','Pescado blanco (crudo)',220,39.6,0,2.2),
     CI('n5c','Ensalada',200,3,10,0.4),
     CI('n5d','Aceite de oliva',10,0,0,10),
     CI('n5e','Palta',30,0.6,2.6,4.4),
@@ -1673,10 +1679,10 @@ function renderCoach(st) {
   const first = recent[0], last = recent[recent.length - 1];
   const avg = sum / n;
   const tdeeObs = Math.round(avg - (last.kg - first.kg) * 7700 / spanDays);
-  const rate = st.phase === 'bulk' ? 0.25 : st.phase === 'cut' ? -0.4 : 0;
+  const rate = st.phase === 'bulk' ? 0.25 : st.phase === 'cut' ? -st.cutRate : 0;
   const rec = Math.round((tdeeObs + rate * 7700 / 7) / 10) * 10;
   const diff = rec - st.kcal;
-  const rateTxt = st.phase === 'bulk' ? '+0.25' : st.phase === 'cut' ? '−0.40' : '0';
+  const rateTxt = st.phase === 'bulk' ? '+0.25' : st.phase === 'cut' ? '−' + st.cutRate.toFixed(2) : '0';
 
   const row = (l, v, c) => `<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
     <span style="color:var(--text2)">${l}</span><span class="mono" style="${c ? 'color:' + c : ''}">${v}</span></div>`;
@@ -1709,7 +1715,7 @@ function applyCoach(rec, tdeeObs) {
     weightGoal: st.weightGoal, tdee: tdeeObs, height: st.height,
     startKg: st.startKg, startDate: st.startDate, rest: st.rest,
     routine: st.routine, cycleStart: st.cycleStart,
-    sex: st.sex, ownPlan: st.ownPlan,
+    sex: st.sex, ownPlan: st.ownPlan, cutRate: st.cutRate,
   });
   renderDashboard();
   toast(`✓ Nuevo objetivo: ${kcalOf(st.prot, carbs, fat)} kcal`);
@@ -2607,6 +2613,7 @@ function openSettings() {
   document.getElementById('s-tdee').value   = st.tdee;
   document.getElementById('s-height').value = st.height;
   document.getElementById('s-rest').value   = st.rest;
+  document.getElementById('s-rate').value   = st.cutRate;
   updateChips();
   calcKcal();
   document.getElementById('s-cycle').value = st.cycleStart || today();
@@ -2650,7 +2657,7 @@ function loadCoachPlan(kind) {
     startKg: old.startKg, startDate: old.startDate,
     rest: old.rest, routine: mp.routine,
     cycleStart: old.cycleStart,
-    sex: old.sex, ownPlan: false,
+    sex: old.sex, ownPlan: false, cutRate: old.cutRate,
   };
   if (ns.phase !== old.phase) {
     ns.cycleStart = phaseChangeStart();
@@ -2715,6 +2722,7 @@ function saveSettings() {
   const tdee   = parseFloat(document.getElementById('s-tdee').value);
   const height = parseFloat(document.getElementById('s-height').value);
   const rest   = parseFloat(document.getElementById('s-rest').value) || 90;
+  const cutRate = Math.min(1, Math.max(0.2, parseFloat(document.getElementById('s-rate').value) || 0.4));
   if (!prot || !carbs || !fat || !goal || !tdee || !height) {
     toast('Completa todos los campos'); return;
   }
@@ -2725,7 +2733,7 @@ function saveSettings() {
     startKg: old.startKg, startDate: old.startDate,
     rest: Math.max(15, rest),
     routine: selRoutine, cycleStart: old.cycleStart,
-    sex: selSex, ownPlan: old.ownPlan,
+    sex: selSex, ownPlan: old.ownPlan, cutRate,
   };
   if (selPhase !== old.phase) {
     ns.cycleStart = phaseChangeStart();
