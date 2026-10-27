@@ -534,6 +534,31 @@ body {
     </div>
   </div>
 
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:10px;color:var(--text2);font-weight:700;letter-spacing:0.8px">ACTIVIDAD · APPLE WATCH</span>
+      <span style="font-size:10px;color:var(--muted)" id="d-act-src"></span>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-label">
+        <span style="color:var(--text2)">Pasos</span>
+        <span class="mono" id="d-steps-lbl"></span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill fill-cyan" id="d-bar-steps" style="width:0%"></div></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:10px">
+      <span id="d-act-kcal"></span>
+      <span id="d-steps-avg"></span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-ghost" onclick="importHealth()">📲 Traer de Salud</button>
+      <button class="btn-ghost" onclick="editActivity()">✎ A mano</button>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5">
+      Las kcal activas son solo referencia: el reloj las estima con error y tu plan ya cuenta tu actividad. No las sumes a tu dieta.
+    </div>
+  </div>
+
   <div class="card" style="text-align:center;padding:20px">
     <div style="font-size:10px;color:var(--text2);letter-spacing:1px;margin-bottom:6px">BALANCE VS OBJETIVO</div>
     <div class="balance-big" id="d-balance">0</div>
@@ -1220,7 +1245,7 @@ const WK_UL = {
 //  Glúteo 3×/semana, cuádriceps y femoral 2×, torso 2× con énfasis en espalda y postura. Reutiliza ids donde es el mismo ejercicio.
 // ═══════════════════════════════════════════
 const TIP_GL = 'Semanas 1–2: haz solo 2 series por ejercicio y deja 2–3 reps en reserva. Desde la semana 3, todas las series. Cuando completes el tope de reps en todas, sube el peso. En glúteo empuja con el talón y aprieta 1 s arriba.';
-const TIP_GL_CARDIO = TIP_GL + ' Al terminar: 20–30′ de cardio suave (cinta inclinada o elíptica).';
+const TIP_GL_CARDIO = TIP_GL + ' Al terminar: 20–30′ de cardio suave (cinta inclinada o elíptica). Si ese día nadas o haces otro deporte, sáltate el cardio.';
 
 const WK_GL = {
   D1: { name:'GLÚTEO + FEMORAL', sub:'Fuerza · Cadera', rest:false, tip:TIP_GL, exercises:[
@@ -1360,6 +1385,7 @@ const K = {
   template: 'ftm_template',
   exhist:   'ftm_exhist',
   water:    d => `ftm_water_${d}`,
+  act:      d => `ftm_act_${d}`,       // { steps, kcal, src: 'salud' | 'manual' }
 };
 
 // ═══════════════════════════════════════════
@@ -1520,6 +1546,7 @@ function renderDashboard() {
     `${dias[now.getDay()]}, ${now.getDate()} ${MESES[now.getMonth()]} ${now.getFullYear()}`;
   document.getElementById('dash-phase').textContent =
     `${PRESETS[st.phase].label} · ${st.kcal} KCAL`;
+  renderActivity();
 
   const latest = latestWeight();
   document.getElementById('d-kg').textContent = latest.kg ?? '—';
@@ -2762,6 +2789,86 @@ function importData(ev) {
   };
   r.readAsText(file);
   ev.target.value = '';
+}
+
+
+// ═══════════════════════════════════════════
+//  ACTIVIDAD (pasos y kcal activas del Apple Watch)
+//  Una web no puede leer la app Salud. Un Atajo de iPhone copia un texto como
+//  "FITMENT fecha=2026-11-04 pasos=8543 kcal=412" y aquí se lee del portapapeles.
+// ═══════════════════════════════════════════
+const STEP_GOAL = 8000;
+
+function getAct(d) {
+  try { return JSON.parse(localStorage.getItem(K.act(d)) || 'null'); } catch (e) { return null; }
+}
+function setAct(d, a) { localStorage.setItem(K.act(d), JSON.stringify(a)); }
+
+// "8.543" o "8 543" (miles) → 8543 · "412,5" o "412.5" → 412.5
+function parseNum(s) {
+  s = String(s).trim().replace(/\s/g, '');
+  if (/^\d{1,3}([.,]\d{3})+$/.test(s)) return parseInt(s.replace(/[.,]/g, ''), 10);
+  const n = parseFloat(s.replace(',', '.'));
+  return isFinite(n) ? n : null;
+}
+
+function parseHealthText(t) {
+  if (!t) return null;
+  const ms = t.match(/pasos\s*[=:]\s*(\d[\d.,]*(?:\s\d{3})*)/i);
+  if (!ms) return null;
+  const steps = parseNum(ms[1]);
+  if (steps == null || steps < 0 || steps > 100000) return null;
+  const mk = t.match(/kcal\s*[=:]\s*(\d[\d.,]*(?:\s\d{3})*)/i);
+  let kcal = mk ? parseNum(mk[1]) : null;
+  if (kcal != null && (kcal < 0 || kcal > 6000)) kcal = null;
+  const md = t.match(/(\d{4}-\d{2}-\d{2})/);
+  return { date: md ? md[1] : null, steps: Math.round(steps), kcal: kcal != null ? Math.round(kcal) : null };
+}
+
+async function importHealth() {
+  let t = '';
+  try { t = await navigator.clipboard.readText(); } catch (e) { /* sin permiso: se pide pegar */ }
+  let r = parseHealthText(t);
+  if (!r) {
+    t = prompt('Pega aquí el texto que copió el Atajo «FITMENT Salud»:', '');
+    if (t == null) return;
+    r = parseHealthText(t);
+  }
+  if (!r) { toast('No encontré los pasos en ese texto'); return; }
+  const d = r.date && r.date <= today() ? r.date : today();
+  setAct(d, { steps: r.steps, kcal: r.kcal, src: 'salud' });
+  renderActivity();
+  toast(`✓ ${r.steps.toLocaleString('es-PE')} pasos` + (r.kcal != null ? ` · ${r.kcal} kcal` : '') + (d !== today() ? ` (${fmtShort(d)})` : ''));
+}
+
+function editActivity() {
+  const a = getAct(today()) || {};
+  const s = prompt('Pasos de hoy:', a.steps != null ? a.steps : '');
+  if (s == null) return;
+  const steps = parseNum(s);
+  if (steps == null || steps < 0 || steps > 100000) { toast('Número de pasos inválido'); return; }
+  const k = prompt('Kcal activas de hoy (opcional):', a.kcal != null ? a.kcal : '');
+  const kcal = k ? parseNum(k) : null;
+  setAct(today(), { steps: Math.round(steps), kcal: kcal != null && kcal >= 0 && kcal <= 6000 ? Math.round(kcal) : null, src: 'manual' });
+  renderActivity();
+  toast('✓ Actividad guardada');
+}
+
+function renderActivity() {
+  const a = getAct(today());
+  const steps = a ? a.steps : 0;
+  document.getElementById('d-steps-lbl').textContent = `${steps.toLocaleString('es-PE')} / ${STEP_GOAL.toLocaleString('es-PE')}`;
+  document.getElementById('d-bar-steps').style.width = pct(steps, STEP_GOAL) + '%';
+  document.getElementById('d-act-kcal').textContent = !a ? 'Sin datos de hoy' : a.kcal != null ? `🔥 ${a.kcal} kcal activas` : 'kcal activas: —';
+  document.getElementById('d-act-src').textContent = a ? (a.src === 'salud' ? 'desde Salud' : 'a mano') : '';
+  const last = [];
+  for (let i = 1; i <= 7; i++) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const x = getAct(dstr(d));
+    if (x && x.steps != null) last.push(x.steps);
+  }
+  document.getElementById('d-steps-avg').textContent = last.length
+    ? `Prom. 7 días: ${Math.round(last.reduce((s, v) => s + v, 0) / last.length).toLocaleString('es-PE')}` : '';
 }
 
 // ═══════════════════════════════════════════
