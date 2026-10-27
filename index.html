@@ -661,6 +661,13 @@ body {
         <input class="form-in" id="w-bf-prev" placeholder="—" readonly>
       </div>
     </div>
+    <div class="form-row2 mb10" id="w-hip-row" style="display:none">
+      <div>
+        <div class="form-lbl">Cadera cm</div>
+        <input class="form-in" type="number" inputmode="decimal" step="0.5" placeholder="cm" id="w-hip" oninput="previewBF()">
+      </div>
+      <div></div>
+    </div>
     <div class="form-row2 mb10">
       <div>
         <div class="form-lbl">BF% medido (InBody)</div>
@@ -672,7 +679,7 @@ body {
       </div>
     </div>
     <div style="font-size:10px;color:var(--muted);margin:-4px 0 10px;line-height:1.5">
-      Si llenas BF% medido, se guarda ese valor; si no, se calcula con cintura y cuello.
+      Si llenas BF% medido, se guarda ese valor; si no, se estima con tus medidas (US Navy). La cinta y el InBody son métodos distintos: compara cada uno consigo mismo.
     </div>
     <button class="btn-lime" onclick="saveWeightEntry()">GUARDAR REGISTRO</button>
   </div>
@@ -710,7 +717,13 @@ body {
       <button class="modal-close" onclick="closeSettings()">×</button>
     </div>
 
-    <div class="modal-sect" style="margin-top:0">Fase actual</div>
+    <div class="modal-sect" style="margin-top:0">Perfil</div>
+    <div class="phase-chips">
+      <button class="phase-chip" id="sx-m" onclick="pickSex('m')">HOMBRE</button>
+      <button class="phase-chip" id="sx-f" onclick="pickSex('f')">MUJER</button>
+    </div>
+
+    <div class="modal-sect">Fase actual</div>
     <div class="phase-chips">
       <button class="phase-chip" id="chip-cut" onclick="pickPhase('cut')">DEFINICIÓN</button>
       <button class="phase-chip" id="chip-maint" onclick="pickPhase('maint')">MANTENIM.</button>
@@ -779,6 +792,12 @@ body {
     </div>
 
     <div class="modal-sect">Planes de comida</div>
+    <button class="btn-ghost" style="width:100%;margin-bottom:8px" onclick="startOwnPlan()">✍️ Plan propio · empezar en blanco</button>
+    <div id="s-own-info" style="display:none;font-size:12px;color:var(--text2);line-height:1.5">
+      Usas tu propio plan: agrega tus alimentos en la pestaña Comida y toca 💾 Plan base para repetirlo cada día.
+      <a href="#" onclick="showPresetPlans(event)" style="color:var(--cyan)">Ver planes predefinidos</a>
+    </div>
+    <div id="s-plans-preset">
     <button class="btn-lime" style="margin-bottom:8px" onclick="loadCoachPlan('cut26')">
       🎯 PLAN CORTE NOV–ENE · <span class="mono" style="font-size:11px" id="cp-cut26-kcal"></span>
     </button>
@@ -792,6 +811,7 @@ body {
     </div>
     <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5">
       Cada botón carga las comidas como plan base diario, fija tus macros objetivo con los totales del plan y activa su rutina: Corte nov–ene → Torso/Pierna; corte del preparador → PPL; volumen → preparador 6D.
+    </div>
     </div>
 
     <div class="modal-sect">Respaldo de datos</div>
@@ -874,6 +894,8 @@ const DEF_S = {
   startKg:null, startDate:null,          // el inicio se toma del primer pesaje
   cycleStart:null,                       // fecha de inicio del ciclo actual (YYYY-MM-DD)
   rest:90, routine:'ul',
+  sex:'m',                               // 'm' u 'f': elige la fórmula de % de grasa
+  ownPlan:false,                         // true: la persona arma su propio plan y se ocultan los predefinidos
 };
 
 function getS() {
@@ -1294,10 +1316,20 @@ function kcalOf(p, c, f) { return Math.round(p * 4 + c * 4 + f * 9); }
 function r1(n) { return Math.round(n * 10) / 10; }
 function pct(v, max) { return max > 0 ? Math.min(100, Math.max(0, Math.round(v / max * 100))) : 0; }
 
-function navyBF(waist, neck) {
-  const h = getS().height;
-  if (!waist || !neck || waist <= neck) return null;
-  return r1(86.010 * Math.log10(waist - neck) - 70.041 * Math.log10(h) + 36.76);
+// % de grasa US Navy (Hodgdon-Beckett), versión en centímetros.
+// Ojo: la fórmula 86.010·log10(...) es para pulgadas; con cm sobreestima ~6 puntos (corregido 27-oct-2026).
+function navyBF(waist, neck, hip) {
+  const st = getS(), h = st.height;
+  if (!waist || !neck || !h) return null;
+  let bf;
+  if (st.sex === 'f') {
+    if (!hip || waist + hip <= neck) return null;
+    bf = 495 / (1.29579 - 0.35004 * Math.log10(waist + hip - neck) + 0.22100 * Math.log10(h)) - 450;
+  } else {
+    if (waist <= neck) return null;
+    bf = 495 / (1.0324 - 0.19077 * Math.log10(waist - neck) + 0.15456 * Math.log10(h)) - 450;
+  }
+  return bf > 2 && bf < 70 ? r1(bf) : null;
 }
 
 const MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -1593,6 +1625,7 @@ function applyCoach(rec, tdeeObs) {
     weightGoal: st.weightGoal, tdee: tdeeObs, height: st.height,
     startKg: st.startKg, startDate: st.startDate, rest: st.rest,
     routine: st.routine, cycleStart: st.cycleStart,
+    sex: st.sex, ownPlan: st.ownPlan,
   });
   renderDashboard();
   toast(`✓ Nuevo objetivo: ${kcalOf(st.prot, carbs, fat)} kcal`);
@@ -2293,6 +2326,7 @@ function restBeep() {
 // ═══════════════════════════════════════════
 function renderWeight() {
   document.getElementById('w-date').value = today();
+  document.getElementById('w-hip-row').style.display = getS().sex === 'f' ? '' : 'none';
   renderWeightTable();
   requestAnimationFrame(drawWeightChart);
 }
@@ -2300,7 +2334,8 @@ function renderWeight() {
 function previewBF() {
   const waist = parseFloat(document.getElementById('w-waist').value);
   const neck  = parseFloat(document.getElementById('w-neck').value);
-  const bf = navyBF(waist, neck);
+  const hip   = parseFloat(document.getElementById('w-hip').value);
+  const bf = navyBF(waist, neck, hip);
   document.getElementById('w-bf-prev').value = bf != null ? bf + '%' : '—';
 }
 
@@ -2309,17 +2344,19 @@ function saveWeightEntry() {
   const kg    = parseFloat(document.getElementById('w-kg').value);
   const waist = parseFloat(document.getElementById('w-waist').value) || null;
   const neck  = parseFloat(document.getElementById('w-neck').value) || null;
+  const hip   = parseFloat(document.getElementById('w-hip').value) || null;
   const note  = document.getElementById('w-note').value.trim();
   if (!date || !kg) { toast('Ingresa fecha y peso'); return; }
   const bfReal = parseFloat(document.getElementById('w-bf-real').value);
-  const bf = bfReal > 0 ? r1(bfReal) : navyBF(waist, neck);
+  const bf = bfReal > 0 ? r1(bfReal) : navyBF(waist, neck, hip);
   const weights = getWeights();
   const idx = weights.findIndex(w => w.date === date);
   const entry = { date, kg, waist, neck, note, bf };
+  if (hip) entry.hip = hip;
   if (idx >= 0) weights[idx] = entry;
   else { weights.push(entry); weights.sort((a,b) => a.date.localeCompare(b.date)); }
   saveWeights(weights);
-  ['w-kg','w-waist','w-neck','w-note','w-bf-prev','w-bf-real'].forEach(id => document.getElementById(id).value = '');
+  ['w-kg','w-waist','w-neck','w-hip','w-note','w-bf-prev','w-bf-real'].forEach(id => document.getElementById(id).value = '');
   toast(`✓ ${kg} kg guardado`);
   renderWeightTable();
   drawWeightChart();
@@ -2424,6 +2461,43 @@ function drawWeightChart() {
 // ═══════════════════════════════════════════
 let selPhase = 'cut';
 let selRoutine = 'ppl';
+let selSex = 'm';
+
+function pickSex(s) { selSex = s; updateSexChips(); }
+function updateSexChips() {
+  ['m','f'].forEach(s => document.getElementById('sx-' + s).classList.toggle('active', selSex === s));
+}
+
+// Guarda solo los campos indicados, sin tocar el resto de ajustes
+function patchS(obj) {
+  const raw = JSON.parse(localStorage.getItem(K.settings) || 'null') || { ...DEF_S };
+  saveS({ ...raw, ...obj });
+}
+
+const OWN_MEALS = [
+  ['C1 Desayuno','7:00 am'], ['C2 Media mañana','10:30 am'], ['C3 Almuerzo','1:00 pm'],
+  ['C4 Media tarde','4:30 pm'], ['C5 Cena','8:00 pm'],
+].map(([name, time], i) => ({ id: 'o' + (i + 1), name, time, items: [] }));
+
+function startOwnPlan() {
+  if (!confirm('¿Empezar tu propio plan en blanco?\n\nTu plan base queda con 5 comidas vacías para que agregues tus alimentos. El día de hoy se reinicia. Pesajes y entrenos no se tocan.')) return;
+  localStorage.setItem(K.template, JSON.stringify(OWN_MEALS));
+  localStorage.removeItem(K.food(today()));
+  patchS({ ownPlan: true });
+  closeSettings();
+  navigate('food');
+  toast('✓ Plan propio: agrega tus alimentos');
+}
+
+function showPresetPlans(ev) {
+  ev.preventDefault();
+  patchS({ ownPlan: false });
+  updatePlanBox(false);
+}
+function updatePlanBox(own) {
+  document.getElementById('s-plans-preset').style.display = own ? 'none' : '';
+  document.getElementById('s-own-info').style.display = own ? '' : 'none';
+}
 
 function pickRoutine(r) {
   selRoutine = r;
@@ -2438,7 +2512,10 @@ function openSettings() {
   const st = getS();
   selPhase = st.phase;
   selRoutine = st.routine;
+  selSex = st.sex === 'f' ? 'f' : 'm';
   updateRChips();
+  updateSexChips();
+  updatePlanBox(!!st.ownPlan);
   document.getElementById('s-prot').value   = st.prot;
   document.getElementById('s-carbs').value  = st.carbs;
   document.getElementById('s-fat').value    = st.fat;
@@ -2489,6 +2566,7 @@ function loadCoachPlan(kind) {
     startKg: old.startKg, startDate: old.startDate,
     rest: old.rest, routine: mp.routine,
     cycleStart: old.cycleStart,
+    sex: old.sex, ownPlan: false,
   };
   if (ns.phase !== old.phase) {
     ns.cycleStart = phaseChangeStart();
@@ -2563,6 +2641,7 @@ function saveSettings() {
     startKg: old.startKg, startDate: old.startDate,
     rest: Math.max(15, rest),
     routine: selRoutine, cycleStart: old.cycleStart,
+    sex: selSex, ownPlan: old.ownPlan,
   };
   if (selPhase !== old.phase) {
     ns.cycleStart = phaseChangeStart();
